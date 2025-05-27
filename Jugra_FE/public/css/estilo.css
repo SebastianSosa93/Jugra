@@ -1,0 +1,62 @@
+body{
+    background-image: url("../img/fondo.png");
+    background-repeat: no-repeat;
+    background-size:cover;
+    background-position: center;
+    background-attachment: fixed;
+    border: 1px solid rgb(62, 59, 107);
+    margin: 1em auto;
+    padding: 1em;
+    width: 70%;
+    text-align: center;
+    font-family: silkscreen,Georgia, Times New Roman, Times, serif;
+}
+
+.bloque-titulo{
+    width: 100%;
+    color: white;
+    text-shadow: 2px 2px 2px black;
+    /* font-family: silkscreen,Georgia, 'Times New Roman', Times, serif; */
+}
+
+.barra-nav{
+    background-color: rgba(0, 110, 255, 0.3);
+    display:flex;
+    justify-content: center;
+
+}
+
+.grupo__botones{
+    margin:0;
+}
+
+.btn-inicio, .btn-registro, .btn-login, .btn-perfil, .btn-cs{
+    background-color: rgba(255, 255, 0,0.5);
+    font-weight: bold;
+    color:#210379;
+    margin-left:20px;
+    margin-right:20px;
+    border-radius: 50%;
+    cursor:pointer;
+}
+
+.btn-inicio:hover, .btn-registro:hover, .btn-login:hover, .btn-perfil:hover, .btn-cs:hover{
+    background-color: yellow;
+    color:#4000ff;
+}
+
+.btn-registro-oculto{
+    display:none;
+}
+
+.btn-login-oculto{
+    display:none;
+}
+
+.btn-perfil-oculto{
+    display:none;
+}
+
+.btn-cs-oculto{
+    display:none;
+}

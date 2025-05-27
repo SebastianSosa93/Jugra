@@ -1,0 +1,484 @@
+//Nombre del proyecto: JuGra(Jugar Gratis)
+
+/*
+Objetivo: Poder acceder a una lista de los juegos gratis que existen y que es posible jugarlos,
+ de manera legal. Pensado para personas que no tienen dinero para comprar juegos, o bien, no quieren gastar
+ dinero en eso.
+ 
+ La idea es que puedan conocer que juegos hay disponibles, crear una lista de juegos favoritos, ordenarlos
+ como deseen y además obtener información sobre cada juego, por ejemplo saber de que genero es o en que 
+ plataforma se puede jugar.
+
+ En resumen, Jugra permite:
+ ·Obtener información de cada juego. 
+ .Agregar o borrar juegos en una lista personalizada. 
+ .Ordenar los juegos por: nombre o id.
+ .Calificar los juegos con una valoración del 1 al 10  
+ .Marcar los juegos como jugado, no jugado, terminado, etc. 
+ .Agregar un comentario (opinion) sobre cada juego. 
+*/
+const express = require("express");
+const morgan = require("morgan");
+// const ejs = require("ejs");
+// const path = require("path");
+// const expressLayout = require("express-ejs-layouts");
+const bcryptjs = require("bcryptjs");
+const cors = require("cors");
+const jwt = require('jsonwebtoken');
+const {body, validationResult} = require('express-validator');
+const sanitizeHtml = require ('sanitize-html');
+const ratelimit = require('express-rate-limit');
+const cookieParser = require("cookie-parser");
+
+
+const {getJuegos,getUnJuego, getFavoritos,getUnFavorito, getInfo,getEstado,ordenarJuegos,insertUsuario,insertFavorito, getUsuarios,getUsuario,modificarRol, getInfoPorID,actualizarFavoritos,borrarFavorito} = require("./db");
+
+const {port,SECRET_KEY,REFRESH_SECRET_KEY,adminClave} = require("./config.js");
+
+
+let refreshTokens=[];
+
+
+const app = express();
+
+
+// app.use(express.static(path.join("../Jugra_FE/", 'public')));
+// app.set("view engine","ejs");
+// app.set("views",path.join("../Jugra_FE/","views"));
+
+// app.use(expressLayout);
+
+app.use(express.text());
+app.use(express.json());
+app.use(express.urlencoded({extended:false}));
+
+app.use(morgan('dev'));
+
+const corsOptions = {
+  origin: 'http://localhost:8080', //permite sólo este origen
+  methods: ["GET", "POST", "PUT", "DELETE"], //Métodos permitidos
+  allowedHeaders: ["Content-Type", "Authorization"], //headers permitidos
+  credentials: true, //solo usando cookies o headers de autenticación.
+}
+
+app.use(cors(corsOptions));
+
+app.use(cookieParser());
+
+const limiter = ratelimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  message: "Demasiadas solicitudes, intenta más tarde"
+});
+
+app.use('/login',limiter);
+
+
+
+async function loadData() {
+  try{
+    require("./carga.js");
+  }catch(error){
+    console.log("No se encontró el archivo requerido para la carga en la base de datos");
+  }
+  try {
+   // let loginOk = false;
+  //  let email;
+    let tokenMuertos = [];
+      //defino al admin de la página
+     const admin = {nombre: 'Sebastián', apellido: 'Sosa', email: 'sebas.sosa2@gmail.com',password: await bcryptjs.hash(adminClave,8), rol:'admin'};
+
+     //testeo si el admin ya está registrado en la base datos
+    if(await getUsuario('sebas.sosa2@gmail.com') === undefined){
+      insertUsuario(admin.nombre,admin.apellido,admin.email,admin.password,admin.rol);
+      console.log("El admin se agregó a la base de datos");
+    }else{
+      console.log("El admin ya existe en la base de datos");
+    }
+
+    //Se muestran los juegos ordenados por número(por defecto) o en orden alfabético, según la opción elegida.
+      app.post('/refresh-token',(req,res)=>{
+        const refreshToken = req.cookies.refreshToken;
+        if(!refreshToken)return res.status(401).json({error: 'No autorizado'});
+
+        //Verificar si el refresh token es válido.
+        if(!refreshToken.includes(refreshToken)){
+          return res.status(403).json({error: 'Refresh invalido'});
+        }
+
+        jwt.verify(refreshToken, REFRESH_SECRET_KEY, (err, usuario) =>{
+          if(err) return res.status(403).json({error: "token invalido"});
+          
+          //generar un nuevo accessToken
+          const tokenNuevo = jwt.sign({ID: usuario.usuarioID, email: emailSeguro, nombre: usuario.nombre + " " + usuario.apellido,rol: usuario.rol }, SECRET_KEY, {});
+           expiresIn='15m';
+        });
+        console.log("token nuevo: "+tokenNuevo);
+        res.json({accessToken: tokenNuevo});
+
+        
+      })
+      app.get("/",async(req,res)=>{
+        res.redirect("/juegos");
+      })
+    
+      app.get("/juegos", async(req,res) =>{
+        let orden = req.query.orden;
+        const lista_juegos = await getJuegos();
+        const informacion_juegos = await getInfo();
+                
+        if(orden){
+        //  res.render("index",{juego : await ordenarJuegos(orden)});
+        res.json({juegos : await ordenarJuegos(orden), informacion: informacion_juegos});
+        }else{
+         // res.render("index",{juego : await getJuegos()});
+         res.json({juegos : lista_juegos, informacion: informacion_juegos});
+        }
+      });
+
+      app.get("/info",async(req,res)=>{
+        const id = req.query.juegoID;
+        const juegos = await getJuegos();
+        let titulo;
+        for(i=0; i<juegos.length; i++){
+          if(juegos[i].juegoID === parseInt(id)){
+              titulo = juegos[i].titulo;
+          }
+        }
+        
+        info = await getInfoPorID(id);
+        const imagen = info.imagen;
+        const descripcion = info.descripcion;
+        const enlace = info.enlace;
+        const plataforma = info.plataforma;
+        const distribuidor = info.distribuidor;
+        const desarrollador = info.desarrollador;
+        const fecha = info.fecha;
+        res.json(
+          {
+            titulo : titulo,
+            imagen : imagen,
+            descripcion : descripcion,
+            enlace : enlace,
+            plataforma : plataforma,
+            distribuidor : distribuidor,
+            desarrollador : desarrollador,
+            fecha : fecha
+          });
+      })
+
+      //verifica que existe un orden y lo cambia en el cliente según la opción elegida por el usuario.
+      app.put("/juegos",async(req,res)=>{
+        const orden = req.body.orden;
+        let existe;
+
+        if(orden){
+        existe = true;
+        }else{
+        existe = false;
+        }
+        res.json({existe: existe})
+      });
+      
+      //renderiza la pagina de registro de usuario
+      app.get("/registro",async(req,res) =>{
+        res.render("registro");
+      });
+      //renderiza la pagina de login
+      app.get("/login",async(req,res) =>{
+
+        res.status(200).json({mensaje: 'Login cargado correctamente'});
+      });
+    
+       //Middleware para verificar token
+      const verificarToken = async (req,res,next) => {
+      // const token = req.headers["authorization"];
+      const token = req.cookies.token;
+       console.log(`este es el token: ${token}`);
+       if(!token) return res.status(403).json({mensaje: "Token requerido" });
+     
+       //jwt.verify(token.split(" ")[1], SECRET_KEY, (err, decoded)=> {
+        jwt.verify(token, SECRET_KEY, (err, decoded)=> {
+         if(err || tokenMuertos.includes(token)) return res.status(401).json({ mensaje: "Token inválido"});
+       
+         req.usuario = {ID: decoded.ID, email: decoded.email, nombre: decoded.nombre, rol: decoded.rol}; // Guarda la info del usuario en la request.
+         req.token = token;
+         next();
+       })
+      };
+      
+      //middleware para verificar roles
+      const autorizarRol = (roles) => {
+        return async (req, res, next) => {
+          
+          const usuario = await getUsuario(req.usuario.email);          
+          if (!roles.includes(usuario.rol)){
+            return res.status(403).json({ Error: 'Acceso no autorizado'});
+          }
+          next();
+        }
+      }
+
+      //Se cierra la sesión inhabilitando el token
+      app.post("/cierre", verificarToken, async(req,res)=>{
+        if(!verificarToken) return res.json({Error: 'la sesion no pudo cerrarse'});
+        tokenMuertos = req.token;
+        res.clearCookie('token',{
+          httpOnly:true,
+          secure:false,
+          sameSite:'lax',
+        })
+
+        res.json({mensaje: 'Sesion cerrada', sesion: 'cerrada'});
+      });
+  
+      // guardar juegos favoritos del usuario logueado (con sanitización).
+      app.post("/favoritos", verificarToken, body('comentario').isString().trim(), async(req,res)=>{
+        
+        const errores = validationResult(req);
+        if(!errores.isEmpty()) return res.status(400).json({errores: errores.array()});
+
+        const comentarioSeguro = sanitizeHtml(req.body.comentario); //limpia el comentario de posibles inyecciones de código
+        const juegoID = req.body.juegoID;
+        const estadoID = req.body.estadoID;
+        const valoracion = req.body.valoracion;
+        const usuario = await getUsuario(req.body.email);
+        
+        //si el token es correcto, se guardan los datos ingresados por el usuario, en la BD.
+        if(verificarToken){   
+          if(await insertFavorito(usuario.usuarioID,juegoID,estadoID,valoracion,comentarioSeguro)){
+              res.status(200).json({correcto: true});
+          }else{
+            res.status(406).json({correcto: false, mensaje: "No se pudo agregar"});
+          }
+        }else{
+          res.status(404).json({correcto: false, mensaje: "No hay usuario logueado"});
+        }
+    })
+      
+    //Acá se registra el usuario como miembro (usuario estándar).
+      app.post("/registro",body('campo-nombre','campo-apellido','campo-email','campo-contrasena').isString().trim(),async(req,res)=>{
+        try {
+          const datos = req.body;
+          const nombre = datos['campo-nombre'];
+          const apellido = datos['campo-apellido'];
+          const email = datos['campo-email'];
+          const password = datos['campo-contrasena'];
+          
+          const errores = validationResult(req);
+          if(!errores.isEmpty()) return res.status(400).json({errores: errores.array()});
+
+          const nombreSano = sanitizeHtml(nombre); 
+          const apellidoSano = sanitizeHtml(apellido); 
+          const emailSano = sanitizeHtml(email);
+          let passwordSano = sanitizeHtml(password)
+
+          const usuarios = await getUsuarios();
+          
+          let existe = false;
+          //Verifica que los campos no estén vacios antes de registrar 
+          if(emailSano === '' || nombreSano === '' || apellidoSano === '' || passwordSano === '') 
+            return res.status(400).json({error: 'Los datos ingresados no son válidos o están incompletos'});
+
+            //comprueba si el email ingresado ya está registrado
+            for(i=0;i<usuarios.length;i++){
+              if(usuarios[i].email === emailSano){
+                  existe = true;
+                  break;
+              }else{
+                existe = false;
+              }
+            }
+            //Si el email no está registrado, registra al usuario en la base de datos.
+            if(!existe){
+              passwordSano = await bcryptjs.hash(passwordSano, 8);
+              insertUsuario(nombreSano, apellidoSano, emailSano, passwordSano, 'miembro');
+              setTimeout(() => {
+                res.render("login",{existe:false}); // pasar datos a la plantilla  
+              }, 3000);            
+            }else{
+              console.error("El usuario ya existe");
+                //res.render("registro",{existe:true});
+            }     
+          
+        }catch (error) {
+          console.error(error);
+         // res.render("registro", { message: "Hubo un error en el registro" });
+        }
+      });
+
+      //login con sanitización
+      app.post("/login",body('email','contrasena').isString().trim(), async(req,res)=>{
+          const {email, contrasena} = req.body;
+         console.log(email, contrasena);
+          const errores = validationResult(req);
+          const sesion = req.cookies.sesion;
+          console.log('Sesion: ',sesion);
+          if(!errores.isEmpty()) return res.status(400).json({errores : errores.array});
+          
+          const emailSeguro = sanitizeHtml(email); //limpia el campo de email.
+          const contrasenaSegura = sanitizeHtml(contrasena); //limpia el campo de contraseña.
+          const usuario = {...await getUsuario(email)};  /*{... } esto sirve para hacer un objeto plano.
+                                                           Por ej: ({clave1 : valor1, clave2 : valor2, Etc.}).*/
+          if(emailSeguro === '') return res.status(400).json({mensaje: 'El email ingresado no es válido o está vacio'});
+          if(contrasenaSegura === '') return res.status(400).json({mensaje: 'La contraseña ingresada no es válida o está vacia'});
+       
+          if(!usuario.email) return  res.status(401).json({ error: 'El usuario no existe', status : res.statusCode});
+          
+
+          if(sesion === 'abierta') return res.status(401).json({error : 'Ya hay una sesion iniciada, primero cierre la sesion', status : res.statusCode});
+    
+          bcryptjs.compare(contrasenaSegura, usuario.password, (err,resultado) => {
+            //if(contrasena === usuario.password){
+            if(err){
+              console.error('Ocurrió un error al comparar:',err);
+            }else if(resultado){
+            // Generar token
+            const token = jwt.sign({ ID: usuario.usuarioID, email: emailSeguro, nombre: usuario.nombre + " " + usuario.apellido,rol: usuario.rol }, SECRET_KEY, {
+          
+              expiresIn: "15m",
+            });
+            res.cookie('token',token,{
+              httpOnly : true,
+              secure: false,
+              sameSite: 'lax'
+            });
+
+      
+            const refreshToken = jwt.sign(usuario, REFRESH_SECRET_KEY);
+            //Guardar el refresh token
+            refreshTokens.push(refreshToken);
+
+            //Enviar el refresh token en una cookie HTTP-only
+            res.cookie("refreshToken", refreshToken, {
+              httpOnly: true, 
+              secure: false,
+              sameSite: "lax",
+              maxAge: 7 * 24 * 60 * 60 * 1000, //7 días
+            });
+            if(sesion !== 'abierta'){
+              res.cookie('sesion','abierta',{
+                httpOnly: true,
+                secure: false,
+                sameSite: "lax",
+              });
+            }
+            //loginOk = true;
+
+            console.log(`accessToken : ${token}`); //envío el token por consola para testear
+            res.json({ accessToken : token, sesion:'abierta'});
+            }else{
+              res.status(401).json({ error: "credenciales incorrectas", status: res.statusCode});
+            }
+          });       
+          
+      });
+
+      //Ruta protegida. Para ver el perfil es necesario el token.
+      app.get("/perfil", verificarToken, async (req,res) =>{
+        const query = req.query;
+        
+        if(!/^[\w\s]+$/.test(query.buscar)){/*comprueba que no se ingresen caracteres 
+                                          que pueden ser usados para ejecutar código malicioso.*/
+          return res.status(400).send('entrada inválida');
+        }
+
+        const juegosFavoritos = await getFavoritos(req.usuario.ID);
+        const info = await getInfo();
+        let usuario = {nombre: req.usuario.nombre, rol: req.usuario.rol, info: info};
+        usuario['favoritos'] = juegosFavoritos;
+        res.json({ mensaje: "Perfil autorizado", usuario: usuario});
+      });
+
+      //Permite acceder a la sección de admin y verifica que sólo el admin tenga acceso.
+      app.get("/admin", verificarToken, autorizarRol(['admin']), async(req,res)=>{
+        
+        res.json({mensaje: 'Bienvenido administrador'});
+      });
+      
+      //Permite acceder a la sección del gerente y verifica que sólo el gerente y el admin tengan acceso.
+      app.get("/gerente",verificarToken, autorizarRol(['admin','gerente']), async(req, res)=>{
+        let rol = req.usuario.rol;
+        if(rol === 'admin') rol = 'administrador';
+        res.json({mensaje: `Bienvenido ${rol}`});
+      })
+
+      /*Permite al admin asignar a un usuario el rol de gerente.
+      Se verifica el token y que sólo el admin tenga permiso.*/
+      app.post("/admin",verificarToken, autorizarRol(['admin']), async(req,res)=>{
+        const email =req.body.email;
+        console.log(email);
+        
+        usuario = await getUsuario(email);
+      
+        const resultado = await modificarRol(usuario.usuarioID,'gerente');
+        usuario = await getUsuario(email); //vuelvo a traer los datos del usuario ya actualizados.
+        
+        if(!resultado) return res.status(403).json({Error: 'No se pudo asignar gerente'});
+        res.json({mensaje : `El rol de gerente se asignó correctamente al usuario ${usuario.nombre}`});
+      })
+         
+      //Actualización de favoritos con sanitización
+      app.put("/perfil", body('comentario').isString().trim(), async (req, res) => {
+        try {
+            const errores = validationResult(req);
+            if(!errores.isEmpty()) return res.status(400).json({errores: errores.array()});
+            
+            //evita que al actualizar el comentario se inyecte codigo malicioso.
+            comentarioSeguro = sanitizeHtml(req.body.comentario); 
+
+            const usuario = await getUsuario(req.body.email);
+            if (!usuario) {
+                return res.status(404).json({ correcto: false, mensaje: "Usuario no encontrado" });
+            }
+
+            const { juegoID, estadoID, valoracion } = req.body;
+        
+            const resultado = await actualizarFavoritos(usuario.usuarioID, juegoID, estadoID, valoracion, comentarioSeguro);
+
+            if (resultado) {
+                res.status(200).json({ correcto: true });
+                console.log("Datos actualizados correctamente")
+            } else {
+                res.status(500).json({ correcto: false, mensaje: "Error al actualizar favoritos" });
+            }
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ correcto: false, mensaje: "Error del servidor" });
+        }
+      });
+
+      //permite borrar un juego de favoritos
+      app.delete("/perfil", async(req,res)=>{
+          const juegoID = req.body.juegoID;
+          const usuario = await getUsuario(req.body.email);
+          
+          if(usuario && juegoID){
+            await borrarFavorito(usuario.usuarioID,juegoID);
+            res.status(200).json({correcto:true, mensaje: "Borrado con exito"});
+          }else{
+            res.status(404).json({correcto:false, mensaje: "No se encontró usuario o juego"});
+          }
+      })
+
+      //  app.post("/sanitizado", body('comment').isString().trim(), (req,res)=>{
+      //   const errores = validationResult(req);
+      //   if(!errores.isEmpty()) return res.status(400).json({errores: errores.array()});
+
+      //   const safeComment = sanitizeHtml(req.body.comment);
+
+      //   res.send({mensaje: "Comentario Seguro", safeComment});
+      //  })
+
+}catch(error){
+  console.log(error);
+}
+finally{
+   app.listen(port,() =>{
+    console.log(`Servidor backend en http://localhost: ${port}`);
+   });
+};
+  
+}
+
+loadData();

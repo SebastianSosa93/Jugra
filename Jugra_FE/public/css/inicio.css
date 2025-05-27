@@ -1,0 +1,330 @@
+.bloque-lista{
+    border: 2px solid black;
+    width:100%;
+    padding-left: 100px;
+    padding-right: 100px;
+    display: flex;
+    flex-wrap: wrap;
+    color: white;
+    /* font-family: silkscreen,Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif; */
+    /* height: 200px; */
+        
+    
+}
+
+.bloque-juego{
+    border: 1px solid black;
+    border-radius: 5%;
+    width: 30%;
+    margin: 10px;
+   background-color: rgba(162, 0, 255, 0.450);
+
+}
+
+
+.bloque-orden{
+    text-align: right;
+}
+
+.bloque-imagen-inicio{
+    margin-top: 5px;
+}
+
+.imagen_juego{
+    border: 5px solid rgba(0, 0, 0, 0.5);    
+}
+
+.titulo-juego{
+    padding: 0;
+    margin: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    text-align: center;
+    background-color: rgba(0, 0, 0, 0.7);
+    border-radius: 10%;
+
+}
+
+#bloque{
+    background-color: rgba(72, 61, 139,0.500);
+    display: flex;
+    flex-flow:row wrap;
+    border: 1px solid black;
+    font-family: silkscreen,Georgia, 'Times New Roman', Times, serif;
+}
+
+#juegoID{
+    background-color: rgba(195, 0, 255, 0.5);
+    width: 5px;
+    border: 1px solid rgba(0, 0, 0, 0.5);
+    font-size: small;
+    font-family:monospace;
+}
+
+.btn-informacion{
+    
+    background-color:rgb(0, 88, 139);
+    color:rgb(7, 187, 211);
+    width: 30%;
+    font-weight:bold;
+    font-size: 10px;
+    padding-top: 3%;
+    padding-bottom: 3%;
+    border-radius: 60%;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    word-wrap: break-word;
+    float: inline-start;
+    margin-top: 5px;
+    margin-left: 20px;
+    cursor:pointer;
+}
+
+#btn-favorito{
+    
+    background-color: rgb(128, 0, 0);
+    color: rgb(241, 198, 5);
+    width: 40%;
+    font-weight:bold;
+    font-size: 10px;
+    padding-top: 3%;
+    padding-bottom: 3%;
+    border-radius: 60%;
+    border-right-width: 5px;
+    border-bottom-width: 5px;
+    /* border-color: rgb(151, 1, 1); */
+    margin-bottom: 20px;
+    margin-top: 5px;
+    margin-left:20px;
+    cursor:pointer;
+    word-wrap: break-word;
+} 
+
+#bloqueId{
+    margin-top: 0;
+}
+
+#btn-favorito:hover{
+    background-color: rgb(255, 47, 47);
+    border-color: rgb(128, 0, 0);
+    color: white;
+}
+#btn-favorito:active{
+    background-color: rgb(192, 39, 39);
+    border-color: rgb(99, 74, 74);
+    color: black;
+}
+.btn-informacion:hover{
+    background-color: rgb(1, 162, 255);
+    border-color: rgb(0, 88, 139);
+    color: white;
+}
+.btn-informacion:active{
+    background-color: rgb(22, 122, 189);
+    border-color: rgb(82, 98, 109);
+    color: rgb(0, 0, 0);
+}
+
+
+main{
+    display: flex;
+    flex-flow:row wrap;
+    justify-content: center;
+    color: WHITE;
+
+}
+
+
+
+.btn-confirmar-favorito{
+    position: relative;
+    top:1px;
+    right: 50px;
+    background-color: green;
+    color:white;
+    cursor: pointer;
+}
+
+.btn-cancelar-favorito{
+    display: none;
+    position:relative;
+    bottom: 23px;
+    left: 50%;
+    background-color: red;
+    color:white;
+    cursor: pointer;
+}
+.btn-cancelar-favorito-activo{
+    display:block;
+ 
+}
+
+.formulario__favorito{
+    display: none;
+}
+
+.formulario__favorito-activo{
+    display:block;
+}
+
+/*//////////////////////////REGISTRO///////////////////////////////*/
+
+.formulario{
+    color: white;
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap:20px;
+    width: 50%;
+    margin:auto;
+}
+
+.formulario__label{
+    display: block;
+    font-weight: 700;
+    text-indent: -20px;
+    text-decoration: dashed;
+    text-shadow: -1px 1px 1px black;
+    padding: 10px;
+    cursor: pointer;
+}
+.formulario__label:hover{
+    text-shadow: -2px 2px 1px blue;
+}
+.formulario__label:active{
+    text-shadow: -2px 2px 1px black;
+}
+
+.formulario__grupo-input{
+    position: relative;
+}
+
+.formulario__input{
+    width: 80%;
+    background-color: white;
+    border: 3px solid transparent;
+    border-radius: 3px;
+    height: 15px;
+    line-height: 15px;
+    transition: .3s ease all;
+}
+.formulario__input:focus{
+    border: 3px solid darkblue;
+    outline: none;
+    box-shadow: 3px 0px 30px rgba(163,163,163,0.4);
+}
+
+.formulario__input-error{
+    display: none;
+    font-size: 14px;
+    margin-bottom: 0;
+    margin-left:20px;
+    text-shadow: 2px 2px 1px rgb(255, 0, 0);
+    background-color: rgba(255, 0, 0,0.2);
+    border-radius: 20px;
+    width: 70%;
+    color:rgb(255, 238, 0);
+    font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+
+.formulario__input-error-activo{
+    display: block;
+}
+
+.formulario__validacion-estado{
+    position: absolute;
+    right: 15px;
+    top: 4px;
+    z-index: 100;
+    font-size: 16px;
+    color:black;
+    opacity: 0;
+}
+
+.formulario__mensaje, .btn-registrar {
+    grid-column: span 2 ;
+}
+
+.formulario__mensaje{
+    display: none;
+    height: 55px;
+    line-height: 25px;
+    background: rgba(255,0,0,0.4);
+    padding: 0 10px;
+    border-radius: 10px;
+}
+
+.formulario__mensaje-activo{
+    display: block;
+}
+
+.formulario__mensaje p{
+    margin:0;
+    text-shadow: 1px 1px 1px rgb(0, 0, 0);
+}
+
+.formulario__mensaje-exito{
+    display:none;
+    font-size: 14px;
+    color: greenyellow;
+    grid-column: span 2;
+    margin-top: 0;
+    text-shadow: 1px 1px 1px black;
+}
+.formulario__mensaje-exito-activo{
+    display: block;
+}
+
+/* Formulario validacion */
+.formulario__grupo-correcto .formulario__validacion-estado {
+    color:green;
+    opacity: 1;
+}
+.formulario__grupo-incorrecto .formulario__label{
+    color: red;
+}
+.formulario__grupo-incorrecto .formulario__validacion-estado {
+    color:red;
+    opacity: 1;
+}
+
+/* Mediaqueries */
+@media screen and (max-width: 800px) {
+    .formulario {
+        grid-template-columns: 1fr;
+    }
+
+    .formulario__mensaje, .btn-registrar{
+        grid-column: 1 ;
+    }
+    
+    .formulario__mensaje-exito{
+        display:none;
+        font-size: 14px;
+        color: greenyellow;
+        grid-column: 1;
+        margin-top: 0;
+        text-shadow: 1px 1px 1px black;
+    }
+
+
+}
+
+/*********************************************************************************************/
+
+#btn-registrar{
+    width: 80px;
+    margin: auto;
+    margin-top: 5px;
+    cursor:pointer;
+    border-radius: 13%;
+    background-color: rgb(63, 62, 62);
+    color:white;
+}
+#btn-registrar:hover{
+    background-color: rgb(141, 141, 141);
+}
+
+
+.imagen_juego{
+    width: 100%;
+    height: 100%;
+}

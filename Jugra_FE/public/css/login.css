@@ -1,0 +1,103 @@
+.formulario__login{
+    color: white;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    grid-template-rows: 80px 50px;
+    column-gap:20px;
+    width: 50%;
+    margin:auto;
+}
+
+.formulario__login-label{
+    display: block;
+    font-weight: 700;
+    text-indent: -20px;
+    text-decoration: dashed;
+    text-shadow: -1px 1px 1px black;
+    padding: 10px;
+    cursor: pointer;
+}
+.formulario__login-label:hover{
+    text-shadow: -2px 2px 1px blue;
+}
+.formulario__login-label:active{
+    text-shadow: -2px 2px 1px black;
+}
+
+.formulario__login-grupo-input{
+    position: relative;
+}
+
+.formulario__login-input{
+    width: 80%;
+    background-color: white;
+    border: 3px solid transparent;
+    border-radius: 3px;
+    height: 15px;
+    line-height: 15px;
+    transition: .3s ease all;
+}
+.formulario__login-input:focus{
+    border: 3px solid darkblue;
+    outline: none;
+    box-shadow: 3px 0px 30px rgba(163,163,163,0.4);
+}
+.formulario__login-mensaje{
+    display: none;
+    height: 55px;
+    line-height: 25px;
+    background: rgba(255,0,0,0.4);
+    padding: 0 10px;
+    border-radius: 10px;
+}
+
+.formulario__login-mensaje-activo{
+    display: block;
+}
+
+.formulario__login-mensaje p{
+    margin:0;
+    text-shadow: 1px 1px 1px rgb(0, 0, 0);
+}
+
+/* Mediaqueries */
+@media screen and (max-width: 800px) {
+    .formulario__login {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+.formulario__login-mensaje, .btn-ingresar{
+    grid-column: span 2 ;
+}
+
+#btn-cancelar,#btn-ingresar{
+    width: 120px;
+    margin: auto;
+    margin-top: 5px;
+    cursor:pointer;
+    border-radius: 13%;
+    background-color: rgb(63, 62, 62);
+    color:white;
+    border-right: 20px;
+    
+}
+#btn-cancelar{
+    margin-right: 100%;
+    width:max-content;
+    font-size:14px;
+    background-color: brown;
+}
+
+#btn-ingresar:hover{
+    background-color: rgb(141, 141, 141);
+}
+#btn-cancelar:hover{
+    background-color: rgb(235, 60, 60);
+}
+
+.formulario__login-input{
+    font-family: 'Pixelify Sans', 'Courier New', Courier, monospace;
+    font-style: normal;
+}
