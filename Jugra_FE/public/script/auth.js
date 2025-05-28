@@ -18,13 +18,16 @@ const Auth = (() => {
                 });
 
                 if(!response.ok){
+                    alert('error');
                     throw new Error('No se pudo refrescar el token');
                 }
 
                 const data = await response.json();
                 this.setToken(data.accessToken); //guardamos el nuevo accessToken en memoria.
+                alert('se guardó el nuevo accessToken',data.accessToken);
                 return data.accessToken;
             }catch (error){
+                alert('error al refrescar');
                 console.error('Error al refrescar el token', error);
                 return null;
             }

@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', () => {
     mostrarBotones();
     mostrarInicio();  
     ordenar();
+    irPerfil();
 });
 
   
@@ -105,3 +106,18 @@ function ordenar(){
     }      
 }  
    
+async function irPerfil(){
+    const btn_perfil = document.getElementById('btn-perfil');
+    btn_perfil.addEventListener('click',()=>{    
+      fetch('http://localhost:3000/login')
+      .then(data => {
+            if(data.status===404){
+                alert('No se puede acceder al perfil sin estar logueado');
+            }else{
+                 perfil();
+            }
+       })
+       
+    })
+    
+}

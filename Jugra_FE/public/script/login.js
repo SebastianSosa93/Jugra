@@ -10,6 +10,7 @@ function validarFormulario(){
         try{
             const data = await apiRequest('http://localhost:3000/perfil');
             console.log('Datos protegidos', data);            
+            
         }catch(error){
             console.error('Error al obtener los datos', error);
         }
@@ -42,12 +43,14 @@ function validarFormulario(){
                 }
                 else{
                     console.log('Usuario aceptado');
-                    console.log(data.accessToken);
+                   
                     Auth.setToken(data.accessToken);
-                    console.log(data.sesion);
+                                    
                     cargarDatos();
-                    perfil();
                 }
             })
+             .then(()=>{
+                 perfil();
+             })
         }) 
 }

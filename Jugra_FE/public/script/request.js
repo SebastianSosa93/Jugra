@@ -21,6 +21,7 @@ async function apiRequest(url, options = {}) {
             response = await fetch(url, options); //reintenta la solicitud con el token nuevo.
         }else{
             console.log('Sesion expirada, redirigiendo al login...');
+            login();
             //window.location.href = '/login'; //redirigir al login si hay un fallo.
         }
     }

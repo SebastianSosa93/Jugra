@@ -19,9 +19,6 @@ Objetivo: Poder acceder a una lista de los juegos gratis que existen y que es po
 */
 const express = require("express");
 const morgan = require("morgan");
-// const ejs = require("ejs");
-// const path = require("path");
-// const expressLayout = require("express-ejs-layouts");
 const bcryptjs = require("bcryptjs");
 const cors = require("cors");
 const jwt = require('jsonwebtoken');
@@ -40,13 +37,6 @@ let refreshTokens=[];
 
 
 const app = express();
-
-
-// app.use(express.static(path.join("../Jugra_FE/", 'public')));
-// app.set("view engine","ejs");
-// app.set("views",path.join("../Jugra_FE/","views"));
-
-// app.use(expressLayout);
 
 app.use(express.text());
 app.use(express.json());
@@ -73,8 +63,6 @@ const limiter = ratelimit({
 
 app.use('/login',limiter);
 
-
-
 async function loadData() {
   try{
     require("./carga.js");
@@ -82,7 +70,7 @@ async function loadData() {
     console.log("No se encontró el archivo requerido para la carga en la base de datos");
   }
   try {
-   // let loginOk = false;
+    let loginOk = false;
   //  let email;
     let tokenMuertos = [];
       //defino al admin de la página
@@ -96,13 +84,13 @@ async function loadData() {
       console.log("El admin ya existe en la base de datos");
     }
 
-    //Se muestran los juegos ordenados por número(por defecto) o en orden alfabético, según la opción elegida.
       app.post('/refresh-token',(req,res)=>{
         const refreshToken = req.cookies.refreshToken;
+        console.log(`El refresh token que manda el front es: ${refreshToken}`)
         if(!refreshToken)return res.status(401).json({error: 'No autorizado'});
 
         //Verificar si el refresh token es válido.
-        if(!refreshToken.includes(refreshToken)){
+        if(!refreshTokens.includes(refreshToken)){
           return res.status(403).json({error: 'Refresh invalido'});
         }
 
@@ -110,28 +98,29 @@ async function loadData() {
           if(err) return res.status(403).json({error: "token invalido"});
           
           //generar un nuevo accessToken
-          const tokenNuevo = jwt.sign({ID: usuario.usuarioID, email: emailSeguro, nombre: usuario.nombre + " " + usuario.apellido,rol: usuario.rol }, SECRET_KEY, {});
-           expiresIn='15m';
+          const tokenNuevo = jwt.sign({ID: usuario.usuarioID, email: emailSeguro, nombre: usuario.nombre + " " + usuario.apellido,rol: usuario.rol }, SECRET_KEY, {
+              expiresIn : '15m'
+          });
+           
+           console.log("token nuevo: "+tokenNuevo);
+            res.json({accessToken: tokenNuevo});
         });
-        console.log("token nuevo: "+tokenNuevo);
-        res.json({accessToken: tokenNuevo});
-
         
-      })
+      });
+
       app.get("/",async(req,res)=>{
         res.redirect("/juegos");
       })
-    
+        //Se muestran los juegos ordenados por número(por defecto) o en orden alfabético, según la opción elegida.
+
       app.get("/juegos", async(req,res) =>{
         let orden = req.query.orden;
         const lista_juegos = await getJuegos();
         const informacion_juegos = await getInfo();
                 
         if(orden){
-        //  res.render("index",{juego : await ordenarJuegos(orden)});
         res.json({juegos : await ordenarJuegos(orden), informacion: informacion_juegos});
         }else{
-         // res.render("index",{juego : await getJuegos()});
          res.json({juegos : lista_juegos, informacion: informacion_juegos});
         }
       });
@@ -186,26 +175,42 @@ async function loadData() {
       });
       //renderiza la pagina de login
       app.get("/login",async(req,res) =>{
-
-        res.status(200).json({mensaje: 'Login cargado correctamente'});
+        if(loginOk){
+          res.status(200).json({mensaje: 'Login cargado correctamente'});
+        }else{
+          res.status(404).json({mensaje: 'No hay usuario logueado'});
+        }
       });
     
        //Middleware para verificar token
       const verificarToken = async (req,res,next) => {
-      // const token = req.headers["authorization"];
+       const tokenRefresh = req.headers["authorization"];
+       
       const token = req.cookies.token;
-       console.log(`este es el token: ${token}`);
-       if(!token) return res.status(403).json({mensaje: "Token requerido" });
-     
-       //jwt.verify(token.split(" ")[1], SECRET_KEY, (err, decoded)=> {
+     console.log(`este es el token: ${token}`);
+       if(!token && !tokenRefresh) return res.status(403).json({mensaje: "Token requerido" });
+
+       if(tokenRefresh){
+          jwt.verify(tokenRefresh.split(" ")[1], SECRET_KEY, (err, decoded)=> {
+            if(err || tokenMuertos.includes(tokenRefresh)) return res.status(401).json({ mensaje: "Token inválido"});
+       
+            req.usuario = {ID: decoded.ID, email: decoded.email, nombre: decoded.nombre, rol: decoded.rol}; // Guarda la info del usuario en la request.
+            req.token = tokenRefresh.split(" ")[1];
+            next();
+          })
+      }else{
         jwt.verify(token, SECRET_KEY, (err, decoded)=> {
          if(err || tokenMuertos.includes(token)) return res.status(401).json({ mensaje: "Token inválido"});
        
          req.usuario = {ID: decoded.ID, email: decoded.email, nombre: decoded.nombre, rol: decoded.rol}; // Guarda la info del usuario en la request.
+         //req.token = token.split(" ")[1];
          req.token = token;
          next();
        })
-      };
+      }
+    }
+      
+    
       
       //middleware para verificar roles
       const autorizarRol = (roles) => {
@@ -220,16 +225,15 @@ async function loadData() {
       }
 
       //Se cierra la sesión inhabilitando el token
-      app.post("/cierre", verificarToken, async(req,res)=>{
-        if(!verificarToken) return res.json({Error: 'la sesion no pudo cerrarse'});
-        tokenMuertos = req.token;
+      app.post("/cierre", async(req,res)=>{
+        tokenMuertos.push(req.cookies.token);
         res.clearCookie('token',{
           httpOnly:true,
           secure:false,
           sameSite:'lax',
         })
-
-        res.json({mensaje: 'Sesion cerrada', sesion: 'cerrada'});
+        loginOk = false;        
+        res.json({mensaje: 'Sesion cerrada'});
       });
   
       // guardar juegos favoritos del usuario logueado (con sanitización).
@@ -312,8 +316,6 @@ async function loadData() {
           const {email, contrasena} = req.body;
          console.log(email, contrasena);
           const errores = validationResult(req);
-          const sesion = req.cookies.sesion;
-          console.log('Sesion: ',sesion);
           if(!errores.isEmpty()) return res.status(400).json({errores : errores.array});
           
           const emailSeguro = sanitizeHtml(email); //limpia el campo de email.
@@ -325,8 +327,7 @@ async function loadData() {
        
           if(!usuario.email) return  res.status(401).json({ error: 'El usuario no existe', status : res.statusCode});
           
-
-          if(sesion === 'abierta') return res.status(401).json({error : 'Ya hay una sesion iniciada, primero cierre la sesion', status : res.statusCode});
+          if(loginOk) return res.status(401).json({error : 'Ya hay una sesion iniciada, primero cierre la sesion', status : res.statusCode});
     
           bcryptjs.compare(contrasenaSegura, usuario.password, (err,resultado) => {
             //if(contrasena === usuario.password){
@@ -336,7 +337,7 @@ async function loadData() {
             // Generar token
             const token = jwt.sign({ ID: usuario.usuarioID, email: emailSeguro, nombre: usuario.nombre + " " + usuario.apellido,rol: usuario.rol }, SECRET_KEY, {
           
-              expiresIn: "15m",
+              expiresIn: "10s",
             });
             res.cookie('token',token,{
               httpOnly : true,
@@ -356,17 +357,11 @@ async function loadData() {
               sameSite: "lax",
               maxAge: 7 * 24 * 60 * 60 * 1000, //7 días
             });
-            if(sesion !== 'abierta'){
-              res.cookie('sesion','abierta',{
-                httpOnly: true,
-                secure: false,
-                sameSite: "lax",
-              });
-            }
-            //loginOk = true;
+           
+            loginOk = true;
 
-            console.log(`accessToken : ${token}`); //envío el token por consola para testear
-            res.json({ accessToken : token, sesion:'abierta'});
+           // console.log(`accessToken : ${token}`); //envío el token por consola para testear
+            res.json({ accessToken : token});
             }else{
               res.status(401).json({ error: "credenciales incorrectas", status: res.statusCode});
             }

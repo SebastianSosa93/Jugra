@@ -28,14 +28,10 @@ function mostrarBotones(){
     //consulto si es posible acceder al perfil. En caso de no poder (codigo 403),
     //se ocultan los botones que no deberían ser visibles para un usuario no logueado.
     //En caso contrario, se muestra el boton de perfil, inicio y cierre, se ocultan los demás. 
-    fetch('http://localhost:3000/perfil',{
-        method:'GET',
-        credentials:'include',
-        headers:{'Content-Type':'application/json'}
-    })
+    fetch('http://localhost:3000/login')
     .then(res => {
-        console.log(res)
-        if(res.status === 403|| res.status === 401){
+      
+        if(res.status === 404){
             btn_perfil.classList.add('btn-perfil-oculto');
             btn_cierre.classList.add('btn-cs-oculto');
         }else{
@@ -79,8 +75,11 @@ function cierre(){
         method:'POST',
         credentials:'include',
         headers:{'Content-Type':'application/json'}
+    })
+    .then(()=>{
+        inicio();
     });
-    inicio();
+        
 }
 
 //controlando el comportamiento del boton cancelar 

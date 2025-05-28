@@ -3,6 +3,7 @@
 }
 
 #btn-inicio{
+   
     position:relative;
     right: 40%;
 }
@@ -43,7 +44,12 @@
 }
 
 .btn-inicio{
+    display:block;
     margin-right: 320px;
+}
+
+.btn-cs{
+     display:block;
 }
 
 

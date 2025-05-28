@@ -1,3 +1,4 @@
+
 document.addEventListener('DOMContentLoaded',()=>{
     mostrarPerfil();
 });
@@ -7,14 +8,25 @@ function mostrarPerfil(){
     fetch('http://localhost:3000/perfil',{
         method:'GET',
         credentials:'include',
-        headers:{'Content-Type': 'application/json'}
+        headers:{'Content-Type': 'application/json'}        
     })
     .then(res => res.json())
     .then(data => {
+        console.log(data);
+
         const bloque_titulo = document.getElementById('bloque-titulo'); //header
         const contenedor = document.getElementById('contenedor-juegos-perfil')  
         const juegosFavoritos = data.usuario.favoritos;
         const informacion = data.usuario.info;
+
+        const btn_inicio = document.getElementById('btn-inicio');
+        const btn_cs = document.getElementById('btn-cs');
+        console.log(btn_inicio);
+        btn_inicio.classList.remove('btn-inicio-oculto');
+        btn_cs.classList.remove('btn-cs-oculto');
+
+
+
         bloque_titulo.innerHTML = `<h1 id="titulo" class="perfil__titulo">Perfil de ${data.usuario.nombre}</h1>`;
 
         juegosFavoritos.forEach(favorito => {
@@ -79,4 +91,3 @@ function mostrarPerfil(){
          
     })    
 }
-

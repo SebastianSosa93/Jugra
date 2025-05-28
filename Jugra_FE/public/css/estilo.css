@@ -45,6 +45,10 @@ body{
     color:#4000ff;
 }
 
+.btn-inicio-oculto{
+    display:none;
+}
+
 .btn-registro-oculto{
     display:none;
 }
