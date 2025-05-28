@@ -16,7 +16,7 @@ const Auth = (() => {
                 method:'POST',
                 credentials: 'include', //importante para enviar cookies httpOnly.
                 });
-
+                alert(`response reftoken: ${response}`);
                 if(!response.ok){
                     alert('error');
                     throw new Error('No se pudo refrescar el token');
@@ -31,7 +31,7 @@ const Auth = (() => {
                 console.error('Error al refrescar el token', error);
                 return null;
             }
-        }
+        },
 
     };
 })();

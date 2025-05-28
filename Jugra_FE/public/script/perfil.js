@@ -1,4 +1,3 @@
-
 document.addEventListener('DOMContentLoaded',()=>{
     mostrarPerfil();
 });
@@ -21,7 +20,7 @@ function mostrarPerfil(){
 
         const btn_inicio = document.getElementById('btn-inicio');
         const btn_cs = document.getElementById('btn-cs');
-        console.log(btn_inicio);
+        
         btn_inicio.classList.remove('btn-inicio-oculto');
         btn_cs.classList.remove('btn-cs-oculto');
 
