@@ -1,4 +1,7 @@
+import mostrarBotones from "./script.js";
+
 document.addEventListener('DOMContentLoaded',()=>{
+    mostrarBotones();
     mostrarPerfil();
 });
 

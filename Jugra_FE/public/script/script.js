@@ -1,4 +1,7 @@
-//import Auth from "./auth.js";
+import Auth from "./auth.js";
+import apiRequest from "./request.js";
+
+const servidor = "http://localhost:8080";
 
 function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFalse){
     fetch(ruta,{
@@ -18,28 +21,68 @@ function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFalse){
     });
 }
 
-function mostrarBotones(){
+async function mostrarBotones(){
     const btn_inicio = document.getElementById('btn-inicio');
     const btn_registro = document.getElementById('btn-registro');
     const btn_login = document.getElementById('btn-login');
     const btn_perfil = document.getElementById('btn-perfil');
-    const btn_cierre = document.getElementById('btn-cs');
+    const btn_cs = document.getElementById('btn-cs');
+    const btn_cancelar = document.getElementById("btn-cancelar");
+    
+    if(btn_cancelar){
+        btn_cancelar.addEventListener('click',()=>{
+             inicio();
+        })
+    }
 
-    //consulto si es posible acceder al perfil. En caso de no poder (codigo 403),
+    if(btn_inicio){
+        btn_inicio.addEventListener('click',()=>{
+            inicio();
+        })
+    }
+
+    if(btn_registro){
+        btn_registro.addEventListener('click',()=>{
+            registro();
+        });
+    }
+
+    if(btn_login){
+        btn_login.addEventListener('click',()=>{
+            login();
+        });
+    }
+
+    if(btn_perfil){
+        btn_perfil.addEventListener('click',()=>{
+            perfil();
+        });
+    }
+
+    if(btn_cs){
+        btn_cs.addEventListener('click',()=>{
+            cierre();
+        });
+    }
+
+    
+    //consulto si es posible acceder al perfil. En caso de no poder (codigo 404),
     //se ocultan los botones que no deberían ser visibles para un usuario no logueado.
     //En caso contrario, se muestra el boton de perfil, inicio y cierre, se ocultan los demás. 
+
+    if(!(document.location.href === servidor + "/" || document.location.href === servidor + "/perfil")) return;
     fetch('http://localhost:3000/login')
     .then(res => {
       
         if(res.status === 404){
             btn_perfil.classList.add('btn-perfil-oculto');
-            btn_cierre.classList.add('btn-cs-oculto');
+            btn_cs.classList.add('btn-cs-oculto');
         }else{
             if(btn_perfil.classList.contains('btn-perfil-oculto')){
                 btn_perfil.classList.remove('btn-perfil-oculto');
             }
-            if(btn_cierre.classList.contains('btn-cs-oculto')){
-                btn_cierre.classList.remove('btn-cs-oculto');
+            if(btn_cs.classList.contains('btn-cs-oculto')){
+                btn_cs.classList.remove('btn-cs-oculto');
             }
             btn_login.classList.add('btn-login-oculto');
             btn_registro.classList.add('btn-registro-oculto');
@@ -50,7 +93,7 @@ function mostrarBotones(){
 
 //redirección a la pagina de inicio.
 function inicio(){
-window.location.href = '/'
+    window.location.href = '/'
     // mostrarInicio();
     // const orden = document.getElementById('ordenar');
     // orden.value = 'id'; //elige la opcion con el nombre 'id'. También se puede usar: orden.selectedIndex = 0;
@@ -78,14 +121,12 @@ function cierre(){
     })
     .then(()=>{
         inicio();
-    });
-        
+    });        
 }
 
 //controlando el comportamiento del boton cancelar 
-const cancelar = document.getElementById("btn-cancelar");
-if(cancelar !== null){
-    cancelar.addEventListener("click",()=>{
-        window.history.back();
-    });
+function cancelar(){
+    window.history.back();
 }
+
+export default (mostrarBotones);

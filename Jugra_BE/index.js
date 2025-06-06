@@ -261,13 +261,13 @@ async function loadData() {
     })
       
     //Acá se registra el usuario como miembro (usuario estándar).
-      app.post("/registro",body('campo-nombre','campo-apellido','campo-email','campo-contrasena').isString().trim(),async(req,res)=>{
+      app.post("/registro",body('nombre','apellido','email','contrasena').isString().trim(),async(req,res)=>{
         try {
           const datos = req.body;
-          const nombre = datos['campo-nombre'];
-          const apellido = datos['campo-apellido'];
-          const email = datos['campo-email'];
-          const password = datos['campo-contrasena'];
+          const nombre = datos['nombre'];
+          const apellido = datos['apellido'];
+          const email = datos['email'];
+          const password = datos['contrasena'];
           
           const errores = validationResult(req);
           if(!errores.isEmpty()) return res.status(400).json({errores: errores.array()});
@@ -298,11 +298,11 @@ async function loadData() {
               passwordSano = await bcryptjs.hash(passwordSano, 8);
               insertUsuario(nombreSano, apellidoSano, emailSano, passwordSano, 'miembro');
               setTimeout(() => {
-                res.render("login",{existe:false}); // pasar datos a la plantilla  
-              }, 3000);            
+                res.json({existe:false}); // pasar datos a la plantilla  
+              }, 1000);            
             }else{
               console.error("El usuario ya existe");
-                //res.render("registro",{existe:true});
+              res.status(400).json({existe:true});
             }     
           
         }catch (error) {
