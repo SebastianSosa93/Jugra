@@ -1,4 +1,4 @@
-import mostrarBotones from "./script.js";
+import {mostrarBotones,pasarDatos} from "./script.js";
 
 document.addEventListener('DOMContentLoaded', () => { 
     mostrarBotones();
@@ -70,6 +70,83 @@ function mostrarInicioConDatos(data){
             window.location.href = `/info?juegoID=${juegoID}`;   
         });
     }
+
+            
+    const botonFav = document.querySelectorAll("#btn-favorito");
+    const formularioFavorito = document.querySelectorAll(".formulario__favorito");
+    const botonCancelarFavorito = document.querySelectorAll(".btn-cancelar-favorito");
+
+    for(let i=0; i<botonFav.length;i++){
+        
+        botonFav[i].addEventListener('click',e=>{
+            function OcultarFormularioFavorito(){
+        
+                if(formularioFavorito[i].classList.contains('formulario__favorito-activo')){
+                
+                    formularioFavorito[i].classList.remove('formulario__favorito-activo');
+                    botonCancelarFavorito[i].classList.remove('btn-cancelar-favorito-activo');
+                }
+            }
+            function mostrarFormularioFavorito(){
+                formularioFavorito[i].classList.add('formulario__favorito-activo');
+                botonCancelarFavorito[i].classList.add('btn-cancelar-favorito-activo');
+            }
+             fetch('http://localhost:3000/login')
+             .then(res => {
+                if(res.status === 200){
+                    mostrarFormularioFavorito();
+                }else{
+                    alert("Primero hay que ingresar en login");
+                }
+            })   
+                
+            botonCancelarFavorito[i].addEventListener('click',()=>{
+                formularioFavorito[i].reset();
+                OcultarFormularioFavorito();
+            })
+        
+            const juegoID = e.target.getAttribute("data-id");
+
+        
+            formularioFavorito[i].addEventListener('submit',(e)=>{
+                e.preventDefault();
+                
+                const estadoID = document.querySelectorAll(".estado-favorito");
+                const valoracion = document.querySelectorAll(".valoracion-favorito");
+                const comentario = document.querySelectorAll(".comentario-favorito");
+                fetch("http://localhost:3000/favoritos",{
+                    method: 'POST',
+                    credentials: 'include',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        juegoID: juegoID,
+                        estadoID: estadoID[i].value,
+                        valoracion: valoracion[i].value,
+                        comentario: comentario[i].value
+                    })
+                })
+                .then(response => response.json())
+                .then(data =>{
+                    if(data.correcto){
+                        console.log("Agregado a favoritos");
+                        alert("El juego fue agregado a favoritos");
+                    }else{
+                        console.log(data.mensaje);
+                        alert("El juego ya existe en favoritos");
+                    }
+                })
+                .finally(()=>{
+                    formularioFavorito[i].reset();                                
+                    OcultarFormularioFavorito();
+                })
+            })
+            
+            
+        });
+    }
+
        
 }
 

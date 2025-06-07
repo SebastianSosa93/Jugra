@@ -117,6 +117,18 @@
 .btn-editar-perfil, .btn-eliminar-perfil{
     display: inline;
     position:sticky;
+    width: 120px;
+    margin: auto;
+    margin-top: 5px;
+    cursor:pointer;
+    border-radius: 13%;
+    background-color: rgb(63, 62, 62);
+    color:white;
+    border-right: 20px;
+}
+
+.btn-editar-perfil:hover, .btn-eliminar-perfil:hover{
+    background-color: rgb(141, 141, 141);
 }
 
 .btn-editar-perfil-oculto, .btn-eliminar-perfil-oculto{

@@ -1,6 +1,6 @@
 import Auth from "./auth.js";
 import apiRequest from "./request.js";
-import mostrarBotones from "./script.js";
+import {mostrarBotones} from "./script.js";
 
 document.addEventListener('DOMContentLoaded',()=>{
     mostrarBotones();

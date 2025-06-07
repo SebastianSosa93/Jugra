@@ -246,11 +246,11 @@ async function loadData() {
         const juegoID = req.body.juegoID;
         const estadoID = req.body.estadoID;
         const valoracion = req.body.valoracion;
-        const usuario = await getUsuario(req.body.email);
+        const usuarioID = req.usuario.ID;
         
         //si el token es correcto, se guardan los datos ingresados por el usuario, en la BD.
         if(verificarToken){   
-          if(await insertFavorito(usuario.usuarioID,juegoID,estadoID,valoracion,comentarioSeguro)){
+          if(await insertFavorito(usuarioID,juegoID,estadoID,valoracion,comentarioSeguro)){
               res.status(200).json({correcto: true});
           }else{
             res.status(406).json({correcto: false, mensaje: "No se pudo agregar"});
@@ -337,7 +337,7 @@ async function loadData() {
             // Generar token
             const token = jwt.sign({ ID: usuario.usuarioID, email: emailSeguro, nombre: usuario.nombre + " " + usuario.apellido,rol: usuario.rol }, SECRET_KEY, {
           
-              expiresIn: "10s",
+              expiresIn: "10m",
             });
             res.cookie('token',token,{
               httpOnly : true,
@@ -380,7 +380,7 @@ async function loadData() {
 
         const juegosFavoritos = await getFavoritos(req.usuario.ID);
         const info = await getInfo();
-        let usuario = {nombre: req.usuario.nombre, rol: req.usuario.rol, info: info};
+        let usuario = {usuarioID: req.usuario.ID, nombre: req.usuario.nombre, rol: req.usuario.rol, info: info};
         usuario['favoritos'] = juegosFavoritos;
         res.json({ mensaje: "Perfil autorizado", usuario: usuario});
       });
@@ -422,14 +422,14 @@ async function loadData() {
             //evita que al actualizar el comentario se inyecte codigo malicioso.
             comentarioSeguro = sanitizeHtml(req.body.comentario); 
 
-            const usuario = await getUsuario(req.body.email);
-            if (!usuario) {
+            const usuarioID = req.body.usuarioID;
+            if (!usuarioID) {
                 return res.status(404).json({ correcto: false, mensaje: "Usuario no encontrado" });
             }
 
             const { juegoID, estadoID, valoracion } = req.body;
         
-            const resultado = await actualizarFavoritos(usuario.usuarioID, juegoID, estadoID, valoracion, comentarioSeguro);
+            const resultado = await actualizarFavoritos(usuarioID, juegoID, estadoID, valoracion, comentarioSeguro);
 
             if (resultado) {
                 res.status(200).json({ correcto: true });
@@ -446,10 +446,10 @@ async function loadData() {
       //permite borrar un juego de favoritos
       app.delete("/perfil", async(req,res)=>{
           const juegoID = req.body.juegoID;
-          const usuario = await getUsuario(req.body.email);
+          const usuarioID = req.body.usuarioID;
           
-          if(usuario && juegoID){
-            await borrarFavorito(usuario.usuarioID,juegoID);
+          if(usuarioID && juegoID){
+            await borrarFavorito(usuarioID,juegoID);
             res.status(200).json({correcto:true, mensaje: "Borrado con exito"});
           }else{
             res.status(404).json({correcto:false, mensaje: "No se encontró usuario o juego"});

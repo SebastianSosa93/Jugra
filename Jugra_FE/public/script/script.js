@@ -3,7 +3,7 @@ import apiRequest from "./request.js";
 
 const servidor = "http://localhost:8080";
 
-function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFalse){
+export async function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFalse){
     fetch(ruta,{
         method: metodo,
         headers: {
@@ -21,7 +21,7 @@ function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFalse){
     });
 }
 
-async function mostrarBotones(){
+export async function mostrarBotones(){
     const btn_inicio = document.getElementById('btn-inicio');
     const btn_registro = document.getElementById('btn-registro');
     const btn_login = document.getElementById('btn-login');
@@ -128,5 +128,3 @@ function cierre(){
 function cancelar(){
     window.history.back();
 }
-
-export default (mostrarBotones);
