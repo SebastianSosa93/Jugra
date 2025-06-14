@@ -1,7 +1,6 @@
 import Auth from "./auth.js";
 import apiRequest from "./request.js";
-
-const servidor = "http://localhost:8080";
+import {port,servidorFront} from "./conexion.js";
 
 export async function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFalse){
     fetch(ruta,{
@@ -70,8 +69,8 @@ export async function mostrarBotones(){
     //se ocultan los botones que no deberían ser visibles para un usuario no logueado.
     //En caso contrario, se muestra el boton de perfil, inicio y cierre, se ocultan los demás. 
 
-    if(!(document.location.href === servidor + "/" || document.location.href === servidor + "/perfil")) return;
-    fetch('http://localhost:3000/login')
+    if(!(document.location.href === servidorFront + "/" || document.location.href === servidorFront + "/perfil")) return;
+    fetch(`https://localhost:${port}/login`)
     .then(res => {
       
         if(res.status === 404){
@@ -114,7 +113,7 @@ function perfil(){
 
 //cierre de sesión y redirección al inicio.
 function cierre(){
-    fetch('http://localhost:3000/cierre',{
+    fetch(`https://localhost:${port}/cierre`,{
         method:'POST',
         credentials:'include',
         headers:{'Content-Type':'application/json'}

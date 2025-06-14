@@ -32,11 +32,12 @@ const {getJuegos,getUnJuego, getFavoritos,getUnFavorito, getInfo,getEstado,orden
 
 const {port,SECRET_KEY,REFRESH_SECRET_KEY,adminClave} = require("./config.js");
 
+const {iniciarServidor,app} = require('./servidor.js');
 
 let refreshTokens=[];
 
 
-const app = express();
+// const app = express();
 
 app.use(express.text());
 app.use(express.json());
@@ -44,16 +45,15 @@ app.use(express.urlencoded({extended:false}));
 
 app.use(morgan('dev'));
 
-const corsOptions = {
-  origin: 'http://localhost:8080', //permite sólo este origen
-  methods: ["GET", "POST", "PUT", "DELETE"], //Métodos permitidos
-  allowedHeaders: ["Content-Type", "Authorization"], //headers permitidos
-  credentials: true, //solo usando cookies o headers de autenticación.
-}
+// Middleware para redirigir HTTP a HTTPS
+app.use((req, res, next) => {
+  if (!req.secure && req.headers.host == 'localhost:3000') {
+    return res.redirect('https://' + req.headers.host + req.url);
+  }
+  next();
+});
 
-app.use(cors(corsOptions));
 
-app.use(cookieParser());
 
 const limiter = ratelimit({
   windowMs: 15 * 60 * 1000,
@@ -109,7 +109,8 @@ async function loadData() {
       });
 
       app.get("/",async(req,res)=>{
-        res.redirect("/juegos");
+        
+        res.redirect(`/juegos`);
       })
         //Se muestran los juegos ordenados por número(por defecto) o en orden alfabético, según la opción elegida.
 
@@ -229,7 +230,7 @@ async function loadData() {
         tokenMuertos.push(req.cookies.token);
         res.clearCookie('token',{
           httpOnly:true,
-          secure:false,
+          secure:true,
           sameSite:'lax',
         })
         loginOk = false;        
@@ -341,9 +342,10 @@ async function loadData() {
             });
             res.cookie('token',token,{
               httpOnly : true,
-              secure: false,
+              secure: true,
               sameSite: 'lax'
             });
+            console.log('Token generado:',token);
 
       
             const refreshToken = jwt.sign(usuario, REFRESH_SECRET_KEY);
@@ -352,8 +354,8 @@ async function loadData() {
 
             //Enviar el refresh token en una cookie HTTP-only
             res.cookie("refreshToken", refreshToken, {
-              httpOnly: true, 
-              secure: false,
+              httpOnly: true,               
+              secure: true,
               sameSite: "lax",
               maxAge: 7 * 24 * 60 * 60 * 1000, //7 días
             });
@@ -469,9 +471,12 @@ async function loadData() {
   console.log(error);
 }
 finally{
-   app.listen(port,() =>{
-    console.log(`Servidor backend en http://localhost: ${port}`);
-   });
+  //  app.listen(port,() =>{
+  //   console.log(`Servidor backend en http://localhost: ${port}`);
+  //  });
+
+  iniciarServidor();
+
 };
   
 }

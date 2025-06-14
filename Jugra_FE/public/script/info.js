@@ -1,4 +1,5 @@
 import {mostrarBotones} from './script.js'
+import { port } from './conexion.js';
 document.addEventListener('DOMContentLoaded', () => { 
     mostrarBotones();   
     mostrarInfo();     
@@ -10,7 +11,7 @@ function mostrarInfo(){
     console.log(params);
     const jid = params.get('juegoID');
     console.log(jid);
-    fetch(`http://localhost:3000/info?juegoID=${jid}`)
+    fetch(`https://localhost:${port}/info?juegoID=${jid}`)
     .then(res => res.json())            
     .then(data =>{        
         const seccion_informacion = document.getElementById('informacion-juego');

@@ -1,7 +1,7 @@
+import {port} from "./conexion.js";
 import Auth from "./auth.js";
 import apiRequest from "./request.js";
 import {mostrarBotones} from "./script.js";
-
 document.addEventListener('DOMContentLoaded',()=>{
     mostrarBotones();
     validarFormulario();
@@ -11,7 +11,7 @@ function validarFormulario(){
     
    async function cargarDatos() {
         try{
-            const data = await apiRequest('http://localhost:3000/perfil');
+            const data = await apiRequest(`https://localhost:${port}/perfil`);
             console.log('Datos protegidos', data);            
             
         }catch(error){
@@ -28,7 +28,7 @@ function validarFormulario(){
             const email = document.getElementById("login-campo-email");
             const contrasena = document.getElementById("login-campo-contrasena");
 
-            fetch('http://localhost:3000/login',{
+            fetch(`https://localhost:${port}/login`,{ //el valor de port es 8443
                 method: 'POST',
                 credentials:'include',
                 headers: {'Content-Type':'application/json'

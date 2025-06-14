@@ -1,5 +1,5 @@
 import {mostrarBotones} from "./script.js";
-
+import {port} from "./conexion.js";
 document.addEventListener('DOMContentLoaded',()=>{
     mostrarBotones();
     mostrarPerfil();
@@ -7,7 +7,7 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 function mostrarPerfil(){
     const refresh = (booleano) => window.location.reload(booleano);
-    fetch('http://localhost:3000/perfil',{
+    fetch(`https://localhost:${port}/perfil`,{
         method:'GET',
         credentials:'include',
         headers:{'Content-Type': 'application/json'}        
@@ -110,7 +110,7 @@ function mostrarPerfil(){
 
                 botonEliminarEditar[i].addEventListener('click',e=>{
                     const juegoID = e.target.getAttribute('data-id');
-                    fetch("http://localhost:3000/perfil",{
+                    fetch(`https://localhost:${port}/perfil`,{
                         method: 'DELETE',
                         headers:{
                             'Content-Type':'application/json'
@@ -191,7 +191,7 @@ function mostrarPerfil(){
                         comentarioPerfil[i].classList.add('comentario-perfil-oculto');
                         botonConfirmarEditar[i].classList.add('btn-confirmar-perfil-activo');
                     }
-                      fetch('http://localhost:3000/login')
+                      fetch(`https://localhost:${port}/login`)
                       .then(res => {
                         if(res.status === 200){
                             mostrarFormularioEditar();
@@ -210,7 +210,7 @@ function mostrarPerfil(){
                     formularioEditar[i].addEventListener('submit',e=>{
                         e.preventDefault();
                         
-                        fetch("http://localhost:3000/perfil",{
+                        fetch(`https://localhost:${port}/perfil`,{
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'

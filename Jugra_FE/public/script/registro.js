@@ -1,4 +1,5 @@
 import mostrarBotones from "./script.js";
+import { port } from "./conexion.js";
 
 document.addEventListener('DOMContentLoaded',()=>{
     mostrarBotones();
@@ -115,7 +116,7 @@ async function verificarRegistro(){
             const valorApellido = document.getElementById('campo-apellido').value;
             const valorEmail = document.getElementById('campo-email').value;
             const valorContra = document.getElementById('campo-contrasena').value;
-            fetch("http://localhost:3000/registro",{
+            fetch(`https://localhost:${port}/registro`,{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
