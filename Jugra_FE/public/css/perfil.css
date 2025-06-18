@@ -33,10 +33,13 @@
     border-radius: 80%;
     margin-left: 20%;
     padding: 5%;
+    padding-bottom: 15px;
+    border-bottom: 0;
 }
 
 .perfil__titulo:hover{
     color:rgb(201, 255, 206);
+  
 }
 
 .btn-perfil{
@@ -133,4 +136,41 @@
 
 .btn-editar-perfil-oculto, .btn-eliminar-perfil-oculto{
     display: none;
+}
+
+.btn-admin{
+
+    background-color: rgba(64, 224, 208, 0.418);
+    border-radius: 40%;
+    margin-top: 0;
+    margin-bottom: 5%;
+}
+
+.btn-admin:hover{
+        background-color: rgba(43, 248, 228, 0.644);
+        color:white;
+        border-radius:50%;
+}
+
+.contenedor-form-op-oculto, .contenedor-form-ag-oculto{
+ display:none;
+}
+
+.btn-admin-oculto{
+    display: none;
+}
+
+.campo-email-op, .campo-email-ag{
+    font-family: 'Pixelify Sans', 'Courier New', Courier, monospace;
+    font-style: normal;
+}
+
+.btn-ingresar-op, .btn-ingresar-ag{
+     background-color: rgb(63, 62, 62);
+     color:white;
+}
+
+.btn-ingresar-op:hover, .btn-ingresar-ag:hover{
+    background-color: rgb(141, 141, 141);
+    color:white;
 }

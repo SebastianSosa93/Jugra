@@ -1,35 +1,220 @@
 import {mostrarBotones} from "./script.js";
-import {port} from "./conexion.js";
-document.addEventListener('DOMContentLoaded',()=>{
-    mostrarBotones();
-    mostrarPerfil();
-});
+import conexion from "./conexion.js";
 
-function mostrarPerfil(){
+const iniciar = async () => {
+    const conexion_datos = await conexion();
+    mostrarBotones(conexion_datos);
+    mostrarPerfil(conexion_datos);
+};
+
+// Ejecutar ahora mismo si el DOM ya está cargado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+} else {
+    iniciar();
+}
+
+function mostrarPerfil(conexion_datos){
     const refresh = (booleano) => window.location.reload(booleano);
-    fetch(`https://localhost:${port}/perfil`,{
+    fetch(`https://localhost:${conexion_datos.puerto}/perfil`,{
         method:'GET',
         credentials:'include',
         headers:{'Content-Type': 'application/json'}        
     })
     .then(res => res.json())
-    .then(data => {
-        console.log(data);
+    .then(async data => {
 
         const bloque_titulo = document.getElementById('bloque-titulo'); //header
         const contenedor = document.getElementById('contenedor-juegos-perfil')  
-        const juegosFavoritos = data.usuario.favoritos;
-        const informacion = data.usuario.info;
-        const usuarioID = data.usuario.usuarioID;
+        let nombre = data.usuario.nombre;
+        let juegosFavoritos = data.usuario.favoritos;
+        let informacion = data.usuario.info;
+        let usuarioID = data.usuario.usuarioID;
         const btn_inicio = document.getElementById('btn-inicio');
         const btn_cs = document.getElementById('btn-cs');
         
         btn_inicio.classList.remove('btn-inicio-oculto');
         btn_cs.classList.remove('btn-cs-oculto');
 
+        let adminOK = false;
 
 
-        bloque_titulo.innerHTML = `<h1 id="titulo" class="perfil__titulo">Perfil de ${data.usuario.nombre}</h1>`;
+        await fetch(`https://localhost:${conexion_datos.puerto}/admin`,{
+            method : 'GET',
+            credentials : 'include',
+            headers : {'Content-Type' : 'application/json'},
+        })
+        .then(respuesta => respuesta.json())
+        .then(admin => {
+            if(admin.status === 200){
+                 adminOK = true;
+                 bloque_titulo.innerHTML = `<h1 id="titulo" class="perfil__titulo">Bienvenido administrador: ${nombre}</h1>`;
+            }            
+        })
+
+        await fetch(`https://localhost:${conexion_datos.puerto}/gerente`,{
+            method: 'GET',
+            credentials: 'include',
+            headers: {'Content-Type': 'application/json'}, 
+        })
+        .then(respuesta => respuesta.json())
+        .then(gerente =>{
+            if(gerente.status === 200){
+                bloque_titulo.innerHTML = `<h1 id="titulo" class="perfil__titulo"> ${gerente.mensaje}`;
+            }
+        });
+   function verOtroPerfil(){     
+        const divMensaje = document.createElement('div');
+        divMensaje.id = 'mensaje_titulo';
+        divMensaje.name = 'mensaje_titulo';
+        divMensaje.class = "perfil_titulo";
+        
+        divMensaje.innerHTML = `<h2 id="titulo" class="perfil__titulo">Perfil de ${nombre}</h2>
+                                <button aria-pressed='false' name="btn-op" id="btn-op" class="btn-admin">OTRO PERFIL</button>
+                                <button aria-pressed='false' name="btn-ag" id="btn-ag" class="btn-admin">ASIGNAR GERENTE</button>
+                                `;
+        bloque_titulo.append(divMensaje);
+        
+        const btn_otroPerfil = document.getElementById('btn-op');
+        const contenedor_form_op = document.createElement('section');
+        const formulario_op = document.createElement('form');
+        const btn_asignarGerente = document.getElementById('btn-ag');
+        const contenedor_form_ag = document.createElement('section');
+        const formulario_ag = document.createElement('form');
+
+        if(!adminOK){
+            if(!btn_otroPerfil.classList.contains('btn-admin-oculto'))
+                btn_otroPerfil.classList.add('btn-admin-oculto');
+            if(!btn_asignarGerente.classList.contains('btn-admin-oculto'))
+                btn_asignarGerente.classList.add('btn-admin-oculto');
+        }else{
+            if(btn_otroPerfil.classList.contains('btn-admin-oculto'))
+                btn_otroPerfil.classList.remove('btn-admin-oculto');
+            if(btn_asignarGerente.classList.contains('btn-admin-oculto'))
+                btn_asignarGerente.classList.remove('btn-admin-oculto');
+        }
+        contenedor_form_op.id = 'contenedor-form-op';
+        contenedor_form_op.classList.add('contenedor-form-op','contenedor-form-op-oculto');
+        
+        formulario_op.id = 'form-op';
+        formulario_op.class = 'form-op';
+
+        formulario_op.action = '/perfil';
+        formulario_op.method = 'POST';
+        formulario_op.innerHTML = `<label for= 'campo_email_op'>Email de usuario</label>
+                                    <input type='email' name='email_usuario' id='campo_email_op' class= 'campo-email-op' placeholder='ver el perfil de un usuario'>
+                                    <input type='submit' id='btn-ingresar-op' class='btn-ingresar-op' value = 'INGRESAR'>
+                                    `;
+        contenedor_form_op.append(formulario_op);       
+        bloque_titulo.append(contenedor_form_op);         
+        
+        contenedor_form_ag.id = 'contenedor-form-ag';
+        contenedor_form_ag.classList.add('contenedor-form-ag','contenedor-form-ag-oculto');
+        
+        formulario_ag.id = 'form-ag';
+        formulario_ag.class = 'form-ag';
+
+        formulario_ag.action = '/perfil';
+        formulario_ag.method = 'POST';
+        formulario_ag.innerHTML = `<label for= 'campo_email_ag'>Asignar a email: </label>
+                                    <input type='email' name='email_usuario_gerente' id='campo_email_ag' class= 'campo-email-ag' placeholder='Asignar un gerente'>
+                                    <input type='submit' id='btn-ingresar-ag' class='btn-ingresar-ag' value = 'INGRESAR'>
+                                    `;
+        contenedor_form_ag.append(formulario_ag);       
+        bloque_titulo.append(contenedor_form_ag);      
+
+        btn_otroPerfil.addEventListener('click',()=>{
+            if(btn_otroPerfil.getAttribute('aria-pressed') === 'false'){            
+                btn_otroPerfil.setAttribute('aria-pressed','true');
+                if(contenedor_form_op.classList.contains('contenedor-form-op-oculto')){
+                    contenedor_form_op.classList.remove('contenedor-form-op-oculto');
+                }
+            
+            }else{
+                btn_otroPerfil.setAttribute('aria-pressed','false');
+                if(!contenedor_form_op.classList.contains('contenedor-form-op-oculto')){
+                    contenedor_form_op.classList.add('contenedor-form-op-oculto');
+                }
+            }
+            
+        })
+
+        btn_asignarGerente.addEventListener('click',()=>{
+            if(btn_asignarGerente.getAttribute('aria-pressed') === 'false'){            
+                btn_asignarGerente.setAttribute('aria-pressed','true');
+                if(contenedor_form_ag.classList.contains('contenedor-form-ag-oculto')){
+                    contenedor_form_ag.classList.remove('contenedor-form-ag-oculto');
+                }
+            
+            }else{
+                btn_asignarGerente.setAttribute('aria-pressed','false');
+                if(!contenedor_form_ag.classList.contains('contenedor-form-ag-oculto')){
+                    contenedor_form_ag.classList.add('contenedor-form-ag-oculto');
+                }
+            }
+            
+        })
+    
+        formulario_op.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            const email_usuario = document.getElementById('campo_email_op');
+            fetch(`https://localhost:${conexion_datos.puerto}/admin/perfil`,{
+                method:'POST',
+                credentials:'include',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({email: email_usuario.value})                                
+            })
+            .then(res => res.json())
+            .then(async dataNueva =>{
+                if(dataNueva.status === 200){
+                    
+                    console.log('usuario encontrado');
+                    juegosFavoritos = dataNueva.usuario.favoritos;
+                    
+                    informacion = dataNueva.usuario.info;
+                    
+                    usuarioID = dataNueva.usuario.usuarioID;
+                    
+                    nombre = dataNueva.usuario.nombre;
+                    
+                    bloque_titulo.innerHTML= '';
+                 
+                    contenedor.innerHTML = '';
+
+                      verOtroPerfil();
+                }else{
+                    console.log('Error: usuario no existe');
+                    alert(dataNueva.error);
+                }
+            });
+
+
+        });
+
+          formulario_ag.addEventListener('submit',(e)=>{
+            e.preventDefault();
+            const email_usuario = document.getElementById('campo_email_ag');
+            fetch(`https://localhost:${conexion_datos.puerto}/admin`,{
+                method:'POST',
+                credentials:'include',
+                headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({email: email_usuario.value})                                
+            })
+            .then(res => res.json())
+            .then(gerente =>{
+                if(gerente.status === 200){
+                    alert('Gerente asignado');
+
+                }else{
+                    console.log('Error: gerente no fue asignado');
+                    alert(gerente.error);
+                }
+            });
+
+
+        });
+  
+  
 
         juegosFavoritos.forEach(favorito => {
             const div = document.createElement('div');
@@ -110,7 +295,7 @@ function mostrarPerfil(){
 
                 botonEliminarEditar[i].addEventListener('click',e=>{
                     const juegoID = e.target.getAttribute('data-id');
-                    fetch(`https://localhost:${port}/perfil`,{
+                    fetch(`https://localhost:${conexion_datos.puerto}/perfil`,{
                         method: 'DELETE',
                         headers:{
                             'Content-Type':'application/json'
@@ -191,7 +376,8 @@ function mostrarPerfil(){
                         comentarioPerfil[i].classList.add('comentario-perfil-oculto');
                         botonConfirmarEditar[i].classList.add('btn-confirmar-perfil-activo');
                     }
-                      fetch(`https://localhost:${port}/login`)
+
+                      fetch(`https://localhost:${conexion_datos.puerto}/login`)
                       .then(res => {
                         if(res.status === 200){
                             mostrarFormularioEditar();
@@ -210,7 +396,7 @@ function mostrarPerfil(){
                     formularioEditar[i].addEventListener('submit',e=>{
                         e.preventDefault();
                         
-                        fetch(`https://localhost:${port}/perfil`,{
+                        fetch(`https://localhost:${conexion_datos.puerto}/perfil`,{
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'
@@ -242,5 +428,8 @@ function mostrarPerfil(){
             }
         
         }
+    }
+    verOtroPerfil();
     })    
+
 }

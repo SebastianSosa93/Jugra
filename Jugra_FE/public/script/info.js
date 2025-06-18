@@ -1,17 +1,26 @@
 import {mostrarBotones} from './script.js'
-import { port } from './conexion.js';
-document.addEventListener('DOMContentLoaded', () => { 
-    mostrarBotones();   
-    mostrarInfo();     
-});
+import conexion from './conexion.js';
 
+const iniciar = async () => {
+    const conexion_datos = await conexion();
+    
+    mostrarBotones(conexion_datos);   
+    mostrarInfo(conexion_datos);   
+};
 
-function mostrarInfo(){    
+// Ejecutar ahora mismo si el DOM ya está cargado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+} else {
+    iniciar();
+}
+
+function mostrarInfo(conexion_datos){    
     const params = new URLSearchParams(window.location.search);
     console.log(params);
     const jid = params.get('juegoID');
     console.log(jid);
-    fetch(`https://localhost:${port}/info?juegoID=${jid}`)
+    fetch(`https://localhost:${conexion_datos.puerto}/info?juegoID=${jid}`)
     .then(res => res.json())            
     .then(data =>{        
         const seccion_informacion = document.getElementById('informacion-juego');

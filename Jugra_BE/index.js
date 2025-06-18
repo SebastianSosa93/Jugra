@@ -30,14 +30,11 @@ const cookieParser = require("cookie-parser");
 
 const {getJuegos,getUnJuego, getFavoritos,getUnFavorito, getInfo,getEstado,ordenarJuegos,insertUsuario,insertFavorito, getUsuarios,getUsuario,modificarRol, getInfoPorID,actualizarFavoritos,borrarFavorito} = require("./db");
 
-const {port,SECRET_KEY,REFRESH_SECRET_KEY,adminClave} = require("./config.js");
+const {servidorFront,port,SECRET_KEY,REFRESH_SECRET_KEY,adminEmail, adminClave} = require("./config.js");
 
 const {iniciarServidor,app} = require('./servidor.js');
 
 let refreshTokens=[];
-
-
-// const app = express();
 
 app.use(express.text());
 app.use(express.json());
@@ -53,8 +50,7 @@ app.use((req, res, next) => {
   next();
 });
 
-
-
+//configuración para el límite de peticiones
 const limiter = ratelimit({
   windowMs: 15 * 60 * 1000,
   max: 100,
@@ -74,10 +70,10 @@ async function loadData() {
   //  let email;
     let tokenMuertos = [];
       //defino al admin de la página
-     const admin = {nombre: 'Sebastián', apellido: 'Sosa', email: 'sebas.sosa2@gmail.com',password: await bcryptjs.hash(adminClave,8), rol:'admin'};
+     const admin = {nombre: 'Sebastián', apellido: 'Sosa', email: adminEmail, password: await bcryptjs.hash(adminClave,8), rol:'admin'};
 
      //testeo si el admin ya está registrado en la base datos
-    if(await getUsuario('sebas.sosa2@gmail.com') === undefined){
+    if(!await getUsuario(adminEmail)){
       insertUsuario(admin.nombre,admin.apellido,admin.email,admin.password,admin.rol);
       console.log("El admin se agregó a la base de datos");
     }else{
@@ -106,6 +102,10 @@ async function loadData() {
             res.json({accessToken: tokenNuevo});
         });
         
+      });
+
+      app.get('/config', (req, res) => {
+        res.json({servidor: servidorFront, puerto: port});
       });
 
       app.get("/",async(req,res)=>{
@@ -172,7 +172,7 @@ async function loadData() {
       
       //renderiza la pagina de registro de usuario
       app.get("/registro",async(req,res) =>{
-        res.render("registro");
+        res.json({mensaje: 'mostrando registro'});
       });
       //renderiza la pagina de login
       app.get("/login",async(req,res) =>{
@@ -197,6 +197,9 @@ async function loadData() {
        
             req.usuario = {ID: decoded.ID, email: decoded.email, nombre: decoded.nombre, rol: decoded.rol}; // Guarda la info del usuario en la request.
             req.token = tokenRefresh.split(" ")[1];
+            if(req.usuario.rol==='admin'){
+                req.usuario2 ={}
+            }
             next();
           })
       }else{
@@ -210,13 +213,10 @@ async function loadData() {
        })
       }
     }
-      
-    
-      
+            
       //middleware para verificar roles
       const autorizarRol = (roles) => {
         return async (req, res, next) => {
-          
           const usuario = await getUsuario(req.usuario.email);          
           if (!roles.includes(usuario.rol)){
             return res.status(403).json({ Error: 'Acceso no autorizado'});
@@ -299,7 +299,7 @@ async function loadData() {
               passwordSano = await bcryptjs.hash(passwordSano, 8);
               insertUsuario(nombreSano, apellidoSano, emailSano, passwordSano, 'miembro');
               setTimeout(() => {
-                res.json({existe:false}); // pasar datos a la plantilla  
+                res.json({existe:false}); // pasar datos
               }, 1000);            
             }else{
               console.error("El usuario ya existe");
@@ -308,14 +308,13 @@ async function loadData() {
           
         }catch (error) {
           console.error(error);
-         // res.render("registro", { message: "Hubo un error en el registro" });
+         
         }
       });
 
       //login con sanitización
       app.post("/login",body('email','contrasena').isString().trim(), async(req,res)=>{
           const {email, contrasena} = req.body;
-         console.log(email, contrasena);
           const errores = validationResult(req);
           if(!errores.isEmpty()) return res.status(400).json({errores : errores.array});
           
@@ -338,7 +337,7 @@ async function loadData() {
             // Generar token
             const token = jwt.sign({ ID: usuario.usuarioID, email: emailSeguro, nombre: usuario.nombre + " " + usuario.apellido,rol: usuario.rol }, SECRET_KEY, {
           
-              expiresIn: "10m",
+              expiresIn: "1h",
             });
             res.cookie('token',token,{
               httpOnly : true,
@@ -362,7 +361,6 @@ async function loadData() {
            
             loginOk = true;
 
-           // console.log(`accessToken : ${token}`); //envío el token por consola para testear
             res.json({ accessToken : token});
             }else{
               res.status(401).json({ error: "credenciales incorrectas", status: res.statusCode});
@@ -390,29 +388,53 @@ async function loadData() {
       //Permite acceder a la sección de admin y verifica que sólo el admin tenga acceso.
       app.get("/admin", verificarToken, autorizarRol(['admin']), async(req,res)=>{
         
-        res.json({mensaje: 'Bienvenido administrador'});
+        res.status(200).json({mensaje: 'Bienvenido administrador', status: res.statusCode});
       });
+      
+      //El admin puede acceder a otros perfiles 
+      app.post("/admin/perfil",async(req,res)=>{
+        const email = req.body.email;
+
+        const emailSano = sanitizeHtml(email);
+
+        const usuario = await getUsuario(emailSano);
+        if(!usuario){
+          return res.status(404).json({ error: 'Usuario no encontrado',status: res.statusCode});
+        }
+        const favoritos = await getFavoritos(usuario.usuarioID);
+        const info = await getInfo();
+        const data = {usuarioID : usuario.usuarioID, nombre: usuario.nombre + " "+ usuario.apellido,rol: usuario.rol,info: info, favoritos: favoritos}
+      
+        res.status(200).json({ mensaje: 'Usuario encontrado', usuario: data, status: res.statusCode});
+      })
       
       //Permite acceder a la sección del gerente y verifica que sólo el gerente y el admin tengan acceso.
       app.get("/gerente",verificarToken, autorizarRol(['admin','gerente']), async(req, res)=>{
         let rol = req.usuario.rol;
         if(rol === 'admin') rol = 'administrador';
-        res.json({mensaje: `Bienvenido ${rol}`});
+        res.status(200).json({mensaje: `Bienvenido ${rol}`, status: res.statusCode});
       })
 
       /*Permite al admin asignar a un usuario el rol de gerente.
       Se verifica el token y que sólo el admin tenga permiso.*/
       app.post("/admin",verificarToken, autorizarRol(['admin']), async(req,res)=>{
         const email =req.body.email;
-        console.log(email);
+        const emailSano = sanitizeHtml(email);
+        const usuarios = await getUsuarios();
         
-        usuario = await getUsuario(email);
-      
+        //Si ya existe un gerente le cambio rol de gerente
+        usuarios.forEach(u =>{
+            modificarRol(u.usuarioID,'miembro');
+        });
+                      
+        let usuario = await getUsuario(emailSano);
+        
         const resultado = await modificarRol(usuario.usuarioID,'gerente');
-        usuario = await getUsuario(email); //vuelvo a traer los datos del usuario ya actualizados.
+  
+        usuario = await getUsuario(emailSano); //vuelvo a traer los datos del usuario ya actualizados.
         
-        if(!resultado) return res.status(403).json({Error: 'No se pudo asignar gerente'});
-        res.json({mensaje : `El rol de gerente se asignó correctamente al usuario ${usuario.nombre}`});
+        if(!resultado) return res.status(404).json({error: 'No se encontró usuario y no se pudo asignar gerente'});
+        res.status(200).json({mensaje : `El rol de gerente se asignó correctamente al usuario ${usuario.nombre}`, status:res.statusCode});
       })
          
       //Actualización de favoritos con sanitización
@@ -458,22 +480,10 @@ async function loadData() {
           }
       })
 
-      //  app.post("/sanitizado", body('comment').isString().trim(), (req,res)=>{
-      //   const errores = validationResult(req);
-      //   if(!errores.isEmpty()) return res.status(400).json({errores: errores.array()});
-
-      //   const safeComment = sanitizeHtml(req.body.comment);
-
-      //   res.send({mensaje: "Comentario Seguro", safeComment});
-      //  })
-
 }catch(error){
   console.log(error);
 }
 finally{
-  //  app.listen(port,() =>{
-  //   console.log(`Servidor backend en http://localhost: ${port}`);
-  //  });
 
   iniciarServidor();
 

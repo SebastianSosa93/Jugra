@@ -1,20 +1,28 @@
 import {mostrarBotones,pasarDatos} from "./script.js";
-import {port} from "./conexion.js";
+import conexion from "./conexion.js";
 
-document.addEventListener('DOMContentLoaded', () => { 
-    mostrarBotones();
-    mostrarInicio();  
-    ordenar();
-    irPerfil();
-});
+  const iniciar = async () => {
+    const conexion_datos = await conexion();
+    console.log("Datos de conexión:", conexion_datos);
 
-  
+    mostrarBotones(conexion_datos);
+    mostrarInicio(conexion_datos);  
+    ordenar(conexion_datos);
+    irPerfil(conexion_datos);
+};
 
-function mostrarInicioConDatos(data){
+// Ejecutar ahora mismo si el DOM ya está cargado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+} else {
+    iniciar();
+}
+
+ function mostrarInicioConDatos(data,conexion_datos){
     const juegos = data.juegos;
     const informacion = data.informacion;
     const bloque = document.getElementById('bloque-lista');
-    
+
     bloque.innerHTML = ''; // Limpiar juegos anteriores
     
     juegos.forEach(juego => { 
@@ -92,7 +100,7 @@ function mostrarInicioConDatos(data){
                 formularioFavorito[i].classList.add('formulario__favorito-activo');
                 botonCancelarFavorito[i].classList.add('btn-cancelar-favorito-activo');
             }
-             fetch(`https://localhost:${port}/login`)
+             fetch(`https://localhost:${conexion_datos.puerto}/login`)
              .then(res => {
                 if(res.status === 200){
                     mostrarFormularioFavorito();
@@ -115,7 +123,7 @@ function mostrarInicioConDatos(data){
                 const estadoID = document.querySelectorAll(".estado-favorito");
                 const valoracion = document.querySelectorAll(".valoracion-favorito");
                 const comentario = document.querySelectorAll(".comentario-favorito");
-                fetch(`https://localhost:${port}/favoritos`,{
+                fetch(`https://localhost:${conexion_datos.puerto}/favoritos`,{
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -151,13 +159,15 @@ function mostrarInicioConDatos(data){
        
 }
 
-function mostrarInicio(){
-    fetch(`https://localhost:${port}/juegos?orden=juegoID`)
+function mostrarInicio(conexion_datos){
+    fetch(`https://localhost:${conexion_datos.puerto}/juegos?orden=juegoID`)
         .then(res => res.json())
-        .then(mostrarInicioConDatos);
+        .then(data => {
+            mostrarInicioConDatos(data,conexion_datos);
+        });
 }
 
-function ordenar(){
+function ordenar(conexion_datos){
    const etiqueta = document.getElementById("etiqueta");
    const orden = document.getElementById("ordenar");
     
@@ -172,8 +182,8 @@ function ordenar(){
         const ordenElegido = mapaOrden[orden.value];
             
         console.log(ordenElegido);
-        pasarDatos(`https://localhost:${port}/juegos`, 'PUT', JSON.stringify({orden: ordenElegido}), () => {
-            fetch(`https://localhost:${port}/juegos?orden=${ordenElegido}`)
+        pasarDatos(`https://localhost:${conexion_datos.puerto}/juegos`, 'PUT', JSON.stringify({orden: ordenElegido}), () => {
+            fetch(`https://localhost:${conexion_datos.puerto}/juegos?orden=${ordenElegido}`)
             .then(res => res.json())
             .then(mostrarInicioConDatos);       
             
@@ -185,10 +195,10 @@ function ordenar(){
     }      
 }  
    
-async function irPerfil(){
+function irPerfil(conexion_datos){
     const btn_perfil = document.getElementById('btn-perfil');
     btn_perfil.addEventListener('click',()=>{    
-      fetch(`https://localhost:${port}/login`)
+      fetch(`https://localhost:${conexion_datos.puerto}/login`)
       .then(data => {
             if(data.status===404){
                 alert('No se puede acceder al perfil sin estar logueado');

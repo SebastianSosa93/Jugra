@@ -3,7 +3,6 @@ import Auth from "./auth.js";
 async function apiRequest(url, options = {}) {
     if(!options.headers) options.headers = {};
     const token = await Auth.getToken();
-    console.log(`Invocando con Token ${token}`);
     if(token){
         options.headers['Authorization'] = `Bearer ${token}`
     }

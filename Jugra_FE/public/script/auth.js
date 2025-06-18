@@ -1,4 +1,6 @@
-import { port } from "./conexion.js";
+import conexion from "./conexion.js";
+const conexion_datos = await conexion();
+
 const Auth = (() => {
     let accessToken = null;
 
@@ -13,7 +15,7 @@ const Auth = (() => {
 
         async refreshToken(){
             try{
-                const response = await fetch(`https://localhost:${port}/refresh-token`,{
+                const response = await fetch(`https://localhost:${conexion_datos.puerto}/refresh-token`,{
                 method:'POST',
                 credentials: 'include', //importante para enviar cookies httpOnly.
                 });

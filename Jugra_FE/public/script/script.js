@@ -1,6 +1,5 @@
 import Auth from "./auth.js";
 import apiRequest from "./request.js";
-import {port,servidorFront} from "./conexion.js";
 
 export async function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFalse){
     fetch(ruta,{
@@ -20,7 +19,7 @@ export async function pasarDatos(ruta,metodo,jsonStringify,funcionTrue,funcionFa
     });
 }
 
-export async function mostrarBotones(){
+export async function mostrarBotones(conexion_datos){
     const btn_inicio = document.getElementById('btn-inicio');
     const btn_registro = document.getElementById('btn-registro');
     const btn_login = document.getElementById('btn-login');
@@ -60,7 +59,7 @@ export async function mostrarBotones(){
 
     if(btn_cs){
         btn_cs.addEventListener('click',()=>{
-            cierre();
+            cierre(conexion_datos);
         });
     }
 
@@ -69,8 +68,8 @@ export async function mostrarBotones(){
     //se ocultan los botones que no deberían ser visibles para un usuario no logueado.
     //En caso contrario, se muestra el boton de perfil, inicio y cierre, se ocultan los demás. 
 
-    if(!(document.location.href === servidorFront + "/" || document.location.href === servidorFront + "/perfil")) return;
-    fetch(`https://localhost:${port}/login`)
+    if(!(document.location.href === conexion_datos.servidor + "/" || document.location.href === conexion_datos.servidor + "/perfil")) return;
+    fetch(`https://localhost:${conexion_datos.puerto}/login`)
     .then(res => {
       
         if(res.status === 404){
@@ -112,8 +111,8 @@ function perfil(){
 }
 
 //cierre de sesión y redirección al inicio.
-function cierre(){
-    fetch(`https://localhost:${port}/cierre`,{
+function cierre(conexion_datos){
+    fetch(`https://localhost:${conexion_datos.puerto}/cierre`,{
         method:'POST',
         credentials:'include',
         headers:{'Content-Type':'application/json'}

@@ -1,18 +1,26 @@
-import {port} from "./conexion.js";
+import conexion from "./conexion.js";
 import Auth from "./auth.js";
 import apiRequest from "./request.js";
 import {mostrarBotones} from "./script.js";
-document.addEventListener('DOMContentLoaded',()=>{
-    mostrarBotones();
-    validarFormulario();
-})
 
-function validarFormulario(){
+ const iniciar = async () => {
+    const conexion_datos = await conexion();
+    mostrarBotones(conexion_datos);
+    validarFormulario(conexion_datos);
+};
+
+// Ejecutar ahora mismo si el DOM ya está cargado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+} else {
+    iniciar();
+}
+
+function validarFormulario(conexion_datos){
     
    async function cargarDatos() {
         try{
-            const data = await apiRequest(`https://localhost:${port}/perfil`);
-            console.log('Datos protegidos', data);            
+            const data = await apiRequest(`https://localhost:${conexion_datos.puerto}/perfil`);
             
         }catch(error){
             console.error('Error al obtener los datos', error);
@@ -28,7 +36,7 @@ function validarFormulario(){
             const email = document.getElementById("login-campo-email");
             const contrasena = document.getElementById("login-campo-contrasena");
 
-            fetch(`https://localhost:${port}/login`,{ //el valor de port es 8443
+            fetch(`https://localhost:${conexion_datos.puerto}/login`,{
                 method: 'POST',
                 credentials:'include',
                 headers: {'Content-Type':'application/json'
@@ -40,9 +48,13 @@ function validarFormulario(){
                 if(data.status === 401){
                     console.log(data.error);
                     alert(data.error);
+                    email.value = '';
+                    contrasena.value = '';
                 }else if (data.status === 400){
                     console.log(data.mensaje);
                     alert(data.mensaje);
+                    email.value = '';
+                    contrasena.value = '';
                 }
                 else{
                     console.log('Usuario aceptado');
@@ -50,10 +62,11 @@ function validarFormulario(){
                     Auth.setToken(data.accessToken);
                                     
                     cargarDatos();
+                    document.location.href = '/perfil';
                 }
             })
              .then(()=>{
-                 document.location.href = '/perfil';
+               
              })
         }) 
 }

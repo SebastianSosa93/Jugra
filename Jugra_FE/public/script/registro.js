@@ -1,12 +1,20 @@
-import mostrarBotones from "./script.js";
-import { port } from "./conexion.js";
+import {mostrarBotones} from "./script.js";
+import conexion from "./conexion.js";
 
-document.addEventListener('DOMContentLoaded',()=>{
-    mostrarBotones();
-    verificarRegistro();
-});
+const iniciar = async () => {
+    const conexion_datos = await conexion();
+    mostrarBotones(conexion_datos);
+    verificarRegistro(conexion_datos);
+};
 
-async function verificarRegistro(){
+// Ejecutar ahora mismo si el DOM ya está cargado
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', iniciar);
+} else {
+    iniciar();
+}
+
+async function verificarRegistro(conexion_datos){
         //trabajando con el formulario, verificar y validar.
 
     //Se obtiene el formulario y los input que contiene.
@@ -116,7 +124,7 @@ async function verificarRegistro(){
             const valorApellido = document.getElementById('campo-apellido').value;
             const valorEmail = document.getElementById('campo-email').value;
             const valorContra = document.getElementById('campo-contrasena').value;
-            fetch(`https://localhost:${port}/registro`,{
+            fetch(`https://localhost:${conexion_datos.puerto}/registro`,{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
