@@ -9,7 +9,7 @@ const cookieParser = require("cookie-parser");
 const app = express();
 
 const corsOptions = {
-  origin: 'https://localhost:8080', //permite sólo este origen
+  origin: config.CORSORIGIN, //permite sólo este origen
   methods: ["GET", "POST", "PUT", "DELETE"], //Métodos permitidos
   allowedHeaders: ["Content-Type", "Authorization"], //headers permitidos
   credentials: true, //solo usando cookies o headers de autenticación.
