@@ -65,8 +65,5 @@ function validarFormulario(conexion_datos){
                     document.location.href = '/perfil';
                 }
             })
-             .then(()=>{
-               
-             })
         }) 
 }
