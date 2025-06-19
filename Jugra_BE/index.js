@@ -73,7 +73,8 @@ async function loadData() {
      const admin = {nombre: 'Sebastián', apellido: 'Sosa', email: adminEmail, password: await bcryptjs.hash(adminClave,8), rol:'admin'};
 
      //testeo si el admin ya está registrado en la base datos
-    if(!await getUsuario(adminEmail)){
+     const adminObtenido = await getUsuario(adminEmail)
+    if(!adminObtenido || adminObtenido.rol !== 'admin'){
       insertUsuario(admin.nombre,admin.apellido,admin.email,admin.password,admin.rol);
       console.log("El admin se agregó a la base de datos");
     }else{
@@ -424,7 +425,8 @@ async function loadData() {
         
         //Si ya existe un gerente le cambio rol de gerente
         usuarios.forEach(u =>{
-            modificarRol(u.usuarioID,'miembro');
+            if(u.rol === 'gerente')
+              modificarRol(u.usuarioID,'miembro');
         });
                       
         let usuario = await getUsuario(emailSano);

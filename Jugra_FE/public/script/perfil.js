@@ -18,8 +18,7 @@ function mostrarPerfil(conexion_datos){
     const refresh = (booleano) => window.location.reload(booleano);
     fetch(`${conexion_datos.servidorBack}/perfil`,{
         method:'GET',
-        credentials:'include',
-        headers:{'Content-Type': 'application/json'}        
+        credentials:'include'
     })
     .then(res => res.json())
     .then(async data => {
@@ -42,7 +41,6 @@ function mostrarPerfil(conexion_datos){
         await fetch(`${conexion_datos.servidorBack}/admin`,{
             method : 'GET',
             credentials : 'include',
-            headers : {'Content-Type' : 'application/json'},
         })
         .then(respuesta => respuesta.json())
         .then(admin => {
@@ -55,7 +53,6 @@ function mostrarPerfil(conexion_datos){
         await fetch(`${conexion_datos.servidorBack}/gerente`,{
             method: 'GET',
             credentials: 'include',
-            headers: {'Content-Type': 'application/json'}, 
         })
         .then(respuesta => respuesta.json())
         .then(gerente =>{
