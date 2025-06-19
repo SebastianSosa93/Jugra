@@ -68,7 +68,7 @@ export async function mostrarBotones(conexion_datos){
     //se ocultan los botones que no deberían ser visibles para un usuario no logueado.
     //En caso contrario, se muestra el boton de perfil, inicio y cierre, se ocultan los demás. 
 
-    if(!(document.location.href === conexion_datos.servidor + "/" || document.location.href === conexion_datos.servidor + "/perfil")) return;
+    if(!(document.location.href === conexion_datos.servidorFront + "/" || document.location.href === conexion_datos.servidorFront + "/perfil")) return;
     fetch(`${conexion_datos.servidorBack}/login`)
     .then(res => {
       
