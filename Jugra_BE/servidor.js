@@ -21,21 +21,24 @@ app.use(cookieParser());
 
 function iniciarServidor(){
  
-    const options = {
-        key: fs.readFileSync('./key.pem'),
-        cert: fs.readFileSync('./cert.pem')
-    };
+    // const options = {
+    //     key: fs.readFileSync('./key.pem'),
+    //     cert: fs.readFileSync('./cert.pem')
+    // };
 
-    http.createServer((req,res)=>{
-        res.writeHead(301, {Location: `https://localhost:${config.port}${req.url}`});
-        res.end();
-    }).listen(3000, ()=>{
-        console.log('Servidor http en http://localhost:3000 redirigiendo a https');
+    app.listen(config.port,()=>{
+        console.log(`servidor backend levantado: ${config.port}`);
     });
+    // http.createServer((req,res)=>{
+    //     res.writeHead(301, {Location: `https://localhost:${config.port}${req.url}`});
+    //     res.end();
+    // }).listen(3000, ()=>{
+    //     console.log('Servidor http en http://localhost:3000 redirigiendo a https');
+    // });
     
-    https.createServer(options, app).listen(config.port, () => {
-        console.log(`Servidor HTTPS corriendo en puerto ${config.port}`);
-    });
+    // https.createServer(options, app).listen(config.port, () => {
+    //     console.log(`Servidor HTTPS corriendo en puerto ${config.port}`);
+    // });
 }
 
 module.exports = {iniciarServidor,app};

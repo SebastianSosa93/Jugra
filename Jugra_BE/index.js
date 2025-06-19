@@ -43,12 +43,12 @@ app.use(express.urlencoded({extended:false}));
 app.use(morgan('dev'));
 
 // Middleware para redirigir HTTP a HTTPS
-app.use((req, res, next) => {
-  if (!req.secure && req.headers.host == 'localhost:3000') {
-    return res.redirect('https://' + req.headers.host + req.url);
-  }
-  next();
-});
+// app.use((req, res, next) => {
+//   if (!req.secure && req.headers.host == 'localhost:3000') {
+//     return res.redirect('https://' + req.headers.host + req.url);
+//   }
+//   next();
+// });
 
 //configuración para el límite de peticiones
 const limiter = ratelimit({
