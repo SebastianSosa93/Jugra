@@ -27,7 +27,7 @@ function iniciarServidor(){
     // };
 
     app.listen(config.port,()=>{
-        console.log(`servidor backend levantado: ${config.port}`);
+        console.log(`servidor backend levantado`);
     });
     // http.createServer((req,res)=>{
     //     res.writeHead(301, {Location: `https://localhost:${config.port}${req.url}`});
