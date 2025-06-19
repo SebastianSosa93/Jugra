@@ -100,7 +100,7 @@ if (document.readyState === 'loading') {
                 formularioFavorito[i].classList.add('formulario__favorito-activo');
                 botonCancelarFavorito[i].classList.add('btn-cancelar-favorito-activo');
             }
-             fetch(`https://localhost:${conexion_datos.puerto}/login`)
+             fetch(`${conexion_datos.servidorBack}/login`)
              .then(res => {
                 if(res.status === 200){
                     mostrarFormularioFavorito();
@@ -123,7 +123,7 @@ if (document.readyState === 'loading') {
                 const estadoID = document.querySelectorAll(".estado-favorito");
                 const valoracion = document.querySelectorAll(".valoracion-favorito");
                 const comentario = document.querySelectorAll(".comentario-favorito");
-                fetch(`https://localhost:${conexion_datos.puerto}/favoritos`,{
+                fetch(`${conexion_datos.servidorBack}/favoritos`,{
                     method: 'POST',
                     credentials: 'include',
                     headers: {
@@ -160,7 +160,7 @@ if (document.readyState === 'loading') {
 }
 
 function mostrarInicio(conexion_datos){
-    fetch(`https://localhost:${conexion_datos.puerto}/juegos?orden=juegoID`)
+    fetch(`${conexion_datos.servidorBack}/juegos?orden=juegoID`)
         .then(res => res.json())
         .then(data => {
             mostrarInicioConDatos(data,conexion_datos);
@@ -182,8 +182,8 @@ function ordenar(conexion_datos){
         const ordenElegido = mapaOrden[orden.value];
             
         console.log(ordenElegido);
-        pasarDatos(`https://localhost:${conexion_datos.puerto}/juegos`, 'PUT', JSON.stringify({orden: ordenElegido}), () => {
-            fetch(`https://localhost:${conexion_datos.puerto}/juegos?orden=${ordenElegido}`)
+        pasarDatos(`${conexion_datos.servidorBack}/juegos`, 'PUT', JSON.stringify({orden: ordenElegido}), () => {
+            fetch(`${conexion_datos.servidorBack}/juegos?orden=${ordenElegido}`)
             .then(res => res.json())
             .then(mostrarInicioConDatos);       
             
@@ -198,12 +198,12 @@ function ordenar(conexion_datos){
 function irPerfil(conexion_datos){
     const btn_perfil = document.getElementById('btn-perfil');
     btn_perfil.addEventListener('click',()=>{    
-      fetch(`https://localhost:${conexion_datos.puerto}/login`)
+      fetch(`${conexion_datos.servidorBack}/login`)
       .then(data => {
             if(data.status===404){
                 alert('No se puede acceder al perfil sin estar logueado');
             }else{
-                 perfil();
+                document.location.href = '/perfil';
             }
        })
        

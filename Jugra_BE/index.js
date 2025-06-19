@@ -30,7 +30,7 @@ const cookieParser = require("cookie-parser");
 
 const {getJuegos,getUnJuego, getFavoritos,getUnFavorito, getInfo,getEstado,ordenarJuegos,insertUsuario,insertFavorito, getUsuarios,getUsuario,modificarRol, getInfoPorID,actualizarFavoritos,borrarFavorito} = require("./db");
 
-const {servidorFront,port,SECRET_KEY,REFRESH_SECRET_KEY,adminEmail, adminClave} = require("./config.js");
+const {servidorBack, servidorFront,port,SECRET_KEY,REFRESH_SECRET_KEY,adminEmail, adminClave} = require("./config.js");
 
 const {iniciarServidor,app} = require('./servidor.js');
 
@@ -105,7 +105,7 @@ async function loadData() {
       });
 
       app.get('/config', (req, res) => {
-        res.json({servidor: servidorFront, puerto: port});
+        res.json({servidorFront: servidorFront, puerto: port, servidorBack: servidorBack});
       });
 
       app.get("/",async(req,res)=>{

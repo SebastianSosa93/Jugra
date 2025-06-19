@@ -20,7 +20,7 @@ function mostrarInfo(conexion_datos){
     console.log(params);
     const jid = params.get('juegoID');
     console.log(jid);
-    fetch(`https://localhost:${conexion_datos.puerto}/info?juegoID=${jid}`)
+    fetch(`${conexion_datos.servidorBack}/info?juegoID=${jid}`)
     .then(res => res.json())            
     .then(data =>{        
         const seccion_informacion = document.getElementById('informacion-juego');

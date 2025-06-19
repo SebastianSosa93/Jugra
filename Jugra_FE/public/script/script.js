@@ -69,7 +69,7 @@ export async function mostrarBotones(conexion_datos){
     //En caso contrario, se muestra el boton de perfil, inicio y cierre, se ocultan los demás. 
 
     if(!(document.location.href === conexion_datos.servidor + "/" || document.location.href === conexion_datos.servidor + "/perfil")) return;
-    fetch(`https://localhost:${conexion_datos.puerto}/login`)
+    fetch(`${conexion_datos.servidorBack}/login`)
     .then(res => {
       
         if(res.status === 404){
@@ -112,7 +112,7 @@ function perfil(){
 
 //cierre de sesión y redirección al inicio.
 function cierre(conexion_datos){
-    fetch(`https://localhost:${conexion_datos.puerto}/cierre`,{
+    fetch(`${conexion_datos.servidorBack}/cierre`,{
         method:'POST',
         credentials:'include',
         headers:{'Content-Type':'application/json'}

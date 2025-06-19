@@ -16,7 +16,7 @@ if (document.readyState === 'loading') {
 
 function mostrarPerfil(conexion_datos){
     const refresh = (booleano) => window.location.reload(booleano);
-    fetch(`https://localhost:${conexion_datos.puerto}/perfil`,{
+    fetch(`${conexion_datos.servidorBack}/perfil`,{
         method:'GET',
         credentials:'include',
         headers:{'Content-Type': 'application/json'}        
@@ -39,7 +39,7 @@ function mostrarPerfil(conexion_datos){
         let adminOK = false;
 
 
-        await fetch(`https://localhost:${conexion_datos.puerto}/admin`,{
+        await fetch(`${conexion_datos.servidorBack}/admin`,{
             method : 'GET',
             credentials : 'include',
             headers : {'Content-Type' : 'application/json'},
@@ -52,7 +52,7 @@ function mostrarPerfil(conexion_datos){
             }            
         })
 
-        await fetch(`https://localhost:${conexion_datos.puerto}/gerente`,{
+        await fetch(`${conexion_datos.servidorBack}/gerente`,{
             method: 'GET',
             credentials: 'include',
             headers: {'Content-Type': 'application/json'}, 
@@ -158,7 +158,7 @@ function mostrarPerfil(conexion_datos){
         formulario_op.addEventListener('submit',(e)=>{
             e.preventDefault();
             const email_usuario = document.getElementById('campo_email_op');
-            fetch(`https://localhost:${conexion_datos.puerto}/admin/perfil`,{
+            fetch(`${conexion_datos.servidorBack}/admin/perfil`,{
                 method:'POST',
                 credentials:'include',
                 headers:{'Content-Type':'application/json'},
@@ -194,7 +194,7 @@ function mostrarPerfil(conexion_datos){
           formulario_ag.addEventListener('submit',(e)=>{
             e.preventDefault();
             const email_usuario = document.getElementById('campo_email_ag');
-            fetch(`https://localhost:${conexion_datos.puerto}/admin`,{
+            fetch(`${conexion_datos.servidorBack}/admin`,{
                 method:'POST',
                 credentials:'include',
                 headers:{'Content-Type':'application/json'},
@@ -295,7 +295,7 @@ function mostrarPerfil(conexion_datos){
 
                 botonEliminarEditar[i].addEventListener('click',e=>{
                     const juegoID = e.target.getAttribute('data-id');
-                    fetch(`https://localhost:${conexion_datos.puerto}/perfil`,{
+                    fetch(`${conexion_datos.servidorBack}/perfil`,{
                         method: 'DELETE',
                         headers:{
                             'Content-Type':'application/json'
@@ -377,7 +377,7 @@ function mostrarPerfil(conexion_datos){
                         botonConfirmarEditar[i].classList.add('btn-confirmar-perfil-activo');
                     }
 
-                      fetch(`https://localhost:${conexion_datos.puerto}/login`)
+                      fetch(`${conexion_datos.servidorBack}/login`)
                       .then(res => {
                         if(res.status === 200){
                             mostrarFormularioEditar();
@@ -396,7 +396,7 @@ function mostrarPerfil(conexion_datos){
                     formularioEditar[i].addEventListener('submit',e=>{
                         e.preventDefault();
                         
-                        fetch(`https://localhost:${conexion_datos.puerto}/perfil`,{
+                        fetch(`${conexion_datos.servidorBack}/perfil`,{
                             method: 'PUT',
                             headers: {
                                 'Content-Type': 'application/json'

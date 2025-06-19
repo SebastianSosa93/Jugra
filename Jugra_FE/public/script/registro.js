@@ -124,7 +124,7 @@ async function verificarRegistro(conexion_datos){
             const valorApellido = document.getElementById('campo-apellido').value;
             const valorEmail = document.getElementById('campo-email').value;
             const valorContra = document.getElementById('campo-contrasena').value;
-            fetch(`https://localhost:${conexion_datos.puerto}/registro`,{
+            fetch(`${conexion_datos.servidorBack}/registro`,{
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

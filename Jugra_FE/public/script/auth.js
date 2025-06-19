@@ -15,7 +15,7 @@ const Auth = (() => {
 
         async refreshToken(){
             try{
-                const response = await fetch(`https://localhost:${conexion_datos.puerto}/refresh-token`,{
+                const response = await fetch(`${conexion_datos.servidorBack}/refresh-token`,{
                 method:'POST',
                 credentials: 'include', //importante para enviar cookies httpOnly.
                 });

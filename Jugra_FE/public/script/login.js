@@ -20,7 +20,7 @@ function validarFormulario(conexion_datos){
     
    async function cargarDatos() {
         try{
-            const data = await apiRequest(`https://localhost:${conexion_datos.puerto}/perfil`);
+            const data = await apiRequest(`${conexion_datos.servidorBack}/perfil`);
             
         }catch(error){
             console.error('Error al obtener los datos', error);
@@ -36,7 +36,7 @@ function validarFormulario(conexion_datos){
             const email = document.getElementById("login-campo-email");
             const contrasena = document.getElementById("login-campo-contrasena");
 
-            fetch(`https://localhost:${conexion_datos.puerto}/login`,{
+            fetch(`${conexion_datos.servidorBack}/login`,{
                 method: 'POST',
                 credentials:'include',
                 headers: {'Content-Type':'application/json'
