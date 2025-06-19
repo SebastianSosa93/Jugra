@@ -79,6 +79,7 @@ async function loadData() {
       console.log("El admin se agregó a la base de datos");
     }else if(adminObtenido.rol !== 'admin'){
       await modificarRol(adminObtenido.usuarioID,'admin');
+      console.log("Se detectó un error en el rol del admin y se corrigió");
     }else{
       console.log("El admin ya existe en la base de datos");
     }
