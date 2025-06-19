@@ -21,6 +21,7 @@ function validarFormulario(conexion_datos){
    async function cargarDatos() {
         try{
             const data = await apiRequest(`${conexion_datos.servidorBack}/perfil`);
+            console.log('datos protegidos: ',data);
             
         }catch(error){
             console.error('Error al obtener los datos', error);
