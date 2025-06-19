@@ -74,9 +74,11 @@ async function loadData() {
 
      //testeo si el admin ya está registrado en la base datos
      const adminObtenido = await getUsuario(adminEmail)
-    if(!adminObtenido || adminObtenido.rol !== 'admin'){
+    if(!adminObtenido){
       insertUsuario(admin.nombre,admin.apellido,admin.email,admin.password,admin.rol);
       console.log("El admin se agregó a la base de datos");
+    }else if(adminObtenido.rol !== 'admin'){
+      await modificarRol(adminObtenido.usuarioID,'admin');
     }else{
       console.log("El admin ya existe en la base de datos");
     }
