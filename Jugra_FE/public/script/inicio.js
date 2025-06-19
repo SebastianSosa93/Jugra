@@ -3,7 +3,6 @@ import conexion from "./conexion.js";
 
   const iniciar = async () => {
     const conexion_datos = await conexion();
-    console.log("Datos de conexión:", conexion_datos);
 
     mostrarBotones(conexion_datos);
     mostrarInicio(conexion_datos);  
