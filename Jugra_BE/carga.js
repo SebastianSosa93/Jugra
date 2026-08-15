@@ -207,6 +207,9 @@ async function cargarApi(){
     }
 }
 
+
+
+
 cargarApi();
 // app.listen(3000);
 // console.log("escuchando puerto 3000");

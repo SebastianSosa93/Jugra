@@ -27,8 +27,9 @@ const sanitizeHtml = require ('sanitize-html');
 const ratelimit = require('express-rate-limit');
 const cookieParser = require("cookie-parser");
 
+const {getJuegos,getUnJuego, getFavoritos,getUnFavorito, getInfo,getEstado,ordenarJuegos,insertUsuario,insertFavorito, getUsuarios,getUsuario,modificarRol, getInfoPorID, actualizarInfo,actualizarFavoritos,borrarFavorito} = require("./db");
 
-const {getJuegos,getUnJuego, getFavoritos,getUnFavorito, getInfo,getEstado,ordenarJuegos,insertUsuario,insertFavorito, getUsuarios,getUsuario,modificarRol, getInfoPorID,actualizarFavoritos,borrarFavorito} = require("./db");
+const {traducirTexto} = require("./traductor.js");
 
 const {servidorBack, servidorFront,port,SECRET_KEY,REFRESH_SECRET_KEY,adminEmail, adminClave} = require("./config.js");
 
@@ -62,11 +63,11 @@ app.use('/login',limiter);
 app.set('trust proxy', 1 /* number of proxies between user and server */);
 
 async function loadData() {
-  try{
-    require("./carga.js");
-  }catch(error){
-    console.log("No se encontró el archivo requerido para la carga en la base de datos");
-  }
+  // try{
+  //   require("./carga.js");
+  // }catch(error){
+  //   console.log("No se encontró el archivo requerido para la carga en la base de datos");
+  // }
   try {
     let loginOk = false;
   //  let email;
@@ -487,7 +488,16 @@ async function loadData() {
             res.status(404).json({correcto:false, mensaje: "No se encontró usuario o juego"});
           }
       })
+      
+      app.post("/traductor",async(req,res)=>{
+           const texto = req.query.texto;
+           const idiomaDestino = req.query.idioma;
+           const traduccion = await traducirTexto(texto,idiomaDestino);
+           res.json({traduccion: traduccion});
+       })
 
+    
+      
 }catch(error){
   console.log(error);
 }

@@ -197,6 +197,24 @@ async function actualizarFavoritos(usuarioID,juegoID,estadoID,valoracion,comenta
                         WHERE usuarioID = ${usuarioID} AND juegoID = ${juegoID}`);
 }
 
+async function actualizarInfo(juegoID,generoID,imagen,descripcion,enlace,plataforma,distribuidor,desarrollador,fecha){
+    useDB("jugra");
+    try{
+        return database.sql(`UPDATE Informacion
+                             SET generoID = ${generoID},
+                             imagen = '${imagen}',
+                             descripcion = '${descripcion}',
+                             enlace = '${enlace}',
+                             plataforma = '${plataforma}',
+                             distribuidor = '${distribuidor}',
+                             desarrollador = '${desarrollador}',
+                             fecha = '${fecha}'
+                             WHERE juegoID = ${juegoID}`);
+    }catch(error){
+        console.error("Error al actualizar la información:", error);
+    }
+}
+
 async function borrarFavorito(usuarioID,juegoID){
     useDB("jugra");
     return database.sql(`DELETE FROM Favoritos
@@ -206,4 +224,4 @@ async function borrarFavorito(usuarioID,juegoID){
 module.exports = {getJuegos,getUnJuego,getFavoritos,getUnFavorito, 
     getGeneros,getUsuarios,getUsuario,getInfo,getInfoPorID,getEstado,
     insertGeneros,insertJuegos,ordenarJuegos,insertUsuario, modificarRol, 
-    insertInfo,insertFavorito,actualizarFavoritos,borrarFavorito};
+    insertInfo,insertFavorito,actualizarFavoritos, actualizarInfo ,borrarFavorito};

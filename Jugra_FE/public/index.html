@@ -6,14 +6,46 @@
     <!-- Normalize.css makes browsers render all elements more consistently and in line with modern standards. 
      It precisely targets only the styles that need normalizing. -->
     <link rel="stylesheet" href="https://necolas.github.io/normalize.css/8.0.1/normalize.css">
-    <link rel="stylesheet" type="text/css" href="/css/inicio.css">
-    <link rel="stylesheet" type="text/css" href="/css/estilo.css">
+    <link rel="stylesheet" name= "css_inicio" type="text/css" href="/css/inicio.css">
+    <link rel="stylesheet" name= "css_estilo" type="text/css" href="/css/estilo.css">
     <link rel="shortcut icon" href="/img/favicon.ico" type="image/x-icon">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Silkscreen:wght@400;700&display=swap" rel="stylesheet">
-    <script type="module" src="/script/inicio.js"></script>
-  
+    <script type="module" name="script_inicio" src="script/inicio.js"></script>
+    
+    <script> 
+        const elementEstilo = document.getElementsByTagName("link").namedItem("css_estilo");
+        const elementInicio = document.getElementsByTagName("link").namedItem("css_inicio");
+        const estiloPath = elementEstilo.getAttribute("href");
+        const inicioPath = elementInicio.getAttribute("href");
+        
+        
+        try{
+            fetch(`http://127.0.0.1:3000/${estiloPath}`)
+            .then(res => res.status)
+            .then(status => {
+                if(status==404){
+                    if(elementEstilo.getAttribute("href")!== "css/stilo.css")
+                        elementEstilo.setAttribute("href","css/estilo.css");
+                }
+            });
+
+              fetch(`http://127.0.0.1:3000/${inicioPath}`)
+            .then(res => res.status)
+            .then(status => { 
+                if(status==404){
+                    if(elementInicio.getAttribute("href")!== "css/inicio.css")
+                        elementInicio.setAttribute("href","css/inicio.css");
+                }
+            });
+
+        }catch(error){
+            console.log("hubo un error en el fetch", error);
+        }
+
+        
+    </script>
     <title>Inicio</title>
 </head>
 <body>

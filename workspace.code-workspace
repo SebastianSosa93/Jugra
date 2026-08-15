@@ -3,5 +3,8 @@
 		{
 			"path": "."
 		}
-	]
+	],
+	"settings": {
+		"livePreview.defaultPreviewPath": "Jugra_FE/public"
+	}
 }

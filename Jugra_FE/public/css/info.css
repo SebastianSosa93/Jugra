@@ -91,3 +91,25 @@ li.imagen-d::before{
     background-image: url('../img/boton_d.png');
 }
 
+
+
+.check-idioma{
+    display:none;    
+
+    +label{        
+        display:inline-block;
+        position: relative;
+        width: 30px;
+        height: 30px;
+        background-image: url('../img/esp_on.png');
+        background-size: cover;
+        cursor: pointer;                
+    }
+    &:checked{
+        +label{
+            display:inline-block;
+            position: relative;
+            background-image: url('../img/esp_off.png');
+        }
+    }
+}
