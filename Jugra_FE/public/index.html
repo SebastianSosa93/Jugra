@@ -22,7 +22,7 @@
         
         
         try{
-            fetch(`http://127.0.0.1:3000/${estiloPath}`)
+            fetch(`https://jugra2.onrender.com/${estiloPath}`)
             .then(res => res.status)
             .then(status => {
                 if(status==404){
@@ -31,7 +31,7 @@
                 }
             });
 
-              fetch(`http://127.0.0.1:3000/${inicioPath}`)
+              fetch(`https://jugra2.onrender.com/${inicioPath}`)
             .then(res => res.status)
             .then(status => { 
                 if(status==404){
