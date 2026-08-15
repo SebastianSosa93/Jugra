@@ -63,11 +63,11 @@ app.use('/login',limiter);
 app.set('trust proxy', 1 /* number of proxies between user and server */);
 
 async function loadData() {
-  // try{
-  //   require("./carga.js");
-  // }catch(error){
-  //   console.log("No se encontró el archivo requerido para la carga en la base de datos");
-  // }
+  try{
+    require("./carga.js");
+  }catch(error){
+    console.log("No se encontró el archivo requerido para la carga en la base de datos");
+  }
   try {
     let loginOk = false;
   //  let email;
