@@ -47,7 +47,7 @@ function mostrarInfo(conexion_datos){
         const seccion_informacion = document.getElementById('informacion-juego');
         const idioma = document.getElementById('check-idioma');
         
-        const traduccion = await traducirTexto(data.descripcion, 'es');
+        const traduccion = await traducirTexto(conexion_datos, data.descripcion, 'es');
 
         let descripcion = "aquí va la descripción del juego/ here goes the game description";
         if(idioma.checked){
