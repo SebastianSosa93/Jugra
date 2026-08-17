@@ -134,7 +134,7 @@ async function loadData() {
         }
       });
 
-      app.get("/info",async(req,res)=>{
+      app.get("/info",async(req,res)=>{        
         const id = req.query.juegoID;
         const juegos = await getJuegos();
         let titulo;
@@ -489,6 +489,7 @@ async function loadData() {
           }
       })
       
+      //Lo utilizo para traducir al español, la descripcion de los juegos que venían en inglés.
       app.post("/traductor",async(req,res)=>{
            const texto = req.query.texto;
            const idiomaDestino = req.query.idioma;

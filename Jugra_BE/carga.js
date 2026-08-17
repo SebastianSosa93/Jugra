@@ -146,7 +146,7 @@ async function insertDB(datos){
         console.log("Los juegos ya existen en la base de datos");
     }
 
-    if(!await infoCargada(datos)){
+    if(!await infoCargada(datos) && juegoID !== undefined){
    
         for(let i= 0; i < datos.length; i++){
             titulo = datos[i].title.trim();
