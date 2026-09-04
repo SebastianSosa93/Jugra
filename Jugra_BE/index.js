@@ -492,7 +492,7 @@ async function loadData() {
       //Lo utilizo para traducir al español, la descripcion de los juegos que venían en inglés.
       app.post("/traductor",async(req,res)=>{
            const texto = req.body.texto;
-           const idiomaDestino = req.body.idioma;
+           const idiomaDestino = req.body.idiomaDestino;
            const traduccion = await traducirTexto(texto,idiomaDestino);
            console.log("texto",texto);
            console.log("idioma",idiomaDestino);
