@@ -497,7 +497,7 @@ async function loadData() {
            if(traduccion !== undefined)
             res.status(200).json({traduccion: traduccion});
            else
-            res.status(404).json({error: "no se realizó la traducción"};
+            res.status(404).json({error: "no se realizó la traducción"});
        })
 
     
