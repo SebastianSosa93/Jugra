@@ -19,7 +19,7 @@ if (document.readyState === 'loading') {
 
 async function traducirTexto(conexion_datos, texto, idiomaDestino) {
     try{
-        const res = await fetch(`${conexion_datos.servidorBack}/traductor?texto=${texto}&idioma=${idiomaDestino}`, {
+        const res = await fetch(`${conexion_datos.servidorBack}/traductor`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
