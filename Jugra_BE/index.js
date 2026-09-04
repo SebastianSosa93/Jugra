@@ -494,6 +494,9 @@ async function loadData() {
            const texto = req.query.texto;
            const idiomaDestino = req.query.idioma;
            const traduccion = await traducirTexto(texto,idiomaDestino);
+           console.log("texto",texto);
+           console.log("idioma",idioma);
+           console.log("traduccion",traduccion);
            if(traduccion !== undefined)
             res.status(200).json({traduccion: traduccion});
            else
