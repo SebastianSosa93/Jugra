@@ -27,6 +27,7 @@ async function traducirTexto(conexion_datos, texto, idiomaDestino) {
             body: JSON.stringify({ texto, idiomaDestino })
         })
         const data = await res.json();
+        console.log(data.traduccion);
         return data.traduccion;
     }catch(error){
         console.error("Error al traducir el texto:", error);
