@@ -7,7 +7,7 @@ app.use(express.json());
 async function traducirTexto(texto, idiomaDestino) {
     const { default: translate } = await import("translate");
     
-    translate.engine = "libre"; 
+    translate.engine = "yandex"; 
 
     try {
         const textoTraducido = await translate(texto, { from: "en", to: idiomaDestino });
